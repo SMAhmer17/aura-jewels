@@ -43,7 +43,7 @@ Set `SEED_DEMO=false` to seed only the admin, settings, and home page (no demo p
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | The single admin (password at least 10 characters) |
 | `CORS_ORIGINS` | Comma separated list of frontends allowed to call the API |
 | `UPLOAD_DIR`, `PUBLIC_BASE_URL` | Local development only: where uploaded images are kept and the public URL they are served from |
-| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Production: uploaded images go to Supabase Storage instead of local disk. Required when `NODE_ENV=production` (set `STORAGE_DRIVER=local` to override). The key is a server secret, never put it in the frontend |
+| `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | Production: uploaded images go to Supabase Storage instead of local disk. Use the project's secret key (`sb_secret_...`); the older `SUPABASE_SERVICE_ROLE_KEY` name also works. Required when `NODE_ENV=production` (set `STORAGE_DRIVER=local` to override). The key is a server secret, never put it in the frontend |
 | `SUPABASE_STORAGE_BUCKET` | Bucket name, default `product-images`. Created (public) automatically on the first upload |
 | `SWAGGER_ENABLED` | Set to `false` to hide `/api/docs` |
 | `PORT` | Defaults to 4000 |
@@ -132,7 +132,7 @@ sign-in is handled by this API (not Supabase Auth).
    - `DIRECT_URL`: the **Session pooler** string (port 5432 on the pooler host). Railway can reach this one over IPv4.
 
    Under Project Settings, API, copy the **Project URL** (`SUPABASE_URL`) and the **service_role** key
-   (`SUPABASE_SERVICE_ROLE_KEY`). Treat the service role key like a password.
+   (`SUPABASE_SECRET_KEY`, shown as "secret" under Connect or API Keys). Treat it like a password.
 2. **Create the tables and first data** from your computer, pointing at Supabase:
    ```bash
    DATABASE_URL="<pooler string>" DIRECT_URL="<session string>" \
@@ -149,7 +149,7 @@ sign-in is handled by this API (not Supabase Auth).
    | `DATABASE_URL`, `DIRECT_URL` | the two Supabase strings from step 1 |
    | `JWT_SECRET` | a fresh random value (`openssl rand -base64 48`) |
    | `CORS_ORIGINS` | your Vercel site address, e.g. `https://aurajewels.vercel.app` (comma separate to allow more) |
-   | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | from step 1 |
+   | `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | from step 1 |
    | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | only needed if you run the seed from Railway |
 
    Generate a public domain for the service in Railway. Then open `https://<your-api>/api/docs` for the live Swagger docs

@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import { resolve } from 'node:path';
 import { AppModule } from './app.module';
 import { PrismaExceptionFilter } from './common/prisma-exception.filter';
+import { supabaseConfigured } from './config/supabase';
 
 export async function createApp() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -27,7 +28,7 @@ export async function createApp() {
   app.useGlobalFilters(new PrismaExceptionFilter());
   app.useBodyParser('json', { limit: '1mb' });
   // Only needed when images are kept on this server's disk (local development). With Supabase Storage they are served from its CDN.
-  if (!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)) {
+  if (!supabaseConfigured()) {
     app.useStaticAssets(resolve(process.env.UPLOAD_DIR ?? './uploads'), { prefix: '/uploads', maxAge: '7d' });
   }
 

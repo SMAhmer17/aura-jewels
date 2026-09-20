@@ -18,6 +18,7 @@ describe('Image storage', () => {
   it('uses local disk when Supabase is not configured', async () => {
     delete process.env.SUPABASE_URL;
     delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    delete process.env.SUPABASE_SECRET_KEY;
     const storage = new StorageService();
     expect(storage.driver).toBe('local');
     const saved = await storage.save(PNG, 'png');
@@ -47,6 +48,26 @@ describe('Image storage', () => {
     expect(uploads[1].headers['Content-Type']).toBe('image/jpeg');
   });
 
+  it('sends a new-style sb_secret key in the apikey header only, and an old service_role key as a bearer token too', async () => {
+    const seen: Record<string, string>[] = [];
+    global.fetch = (async (_url: string, init: RequestInit) => {
+      seen.push(init.headers as Record<string, string>);
+      return respond(200);
+    }) as typeof fetch;
+
+    Object.assign(process.env, { SUPABASE_URL: 'https://abc.supabase.co', SUPABASE_SECRET_KEY: 'sb_secret_abc123' });
+    const modern = new StorageService();
+    expect(modern.driver).toBe('supabase');
+    await modern.save(PNG, 'png');
+    expect(seen.every((h) => h.apikey === 'sb_secret_abc123' && h.Authorization === undefined)).toBe(true);
+
+    seen.length = 0;
+    delete process.env.SUPABASE_SECRET_KEY;
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'eyJlegacy.jwt.key';
+    await new StorageService().save(PNG, 'png');
+    expect(seen.every((h) => h.apikey === 'eyJlegacy.jwt.key' && h.Authorization === 'Bearer eyJlegacy.jwt.key')).toBe(true);
+  });
+
   it('carries on when the bucket already exists', async () => {
     Object.assign(process.env, SUPABASE);
     global.fetch = (async (url: string) =>
@@ -73,6 +94,13 @@ describe('Production environment checks', () => {
 
   it('refuses to start in production without Supabase Storage (images would vanish on redeploy)', () => {
     expect(() => validateEnv(base)).toThrow(/SUPABASE_URL/);
+  });
+
+  it('accepts the secret key under either variable name', () => {
+    const { SUPABASE_SERVICE_ROLE_KEY: _legacy, ...urlOnly } = SUPABASE;
+    expect(() => validateEnv({ ...base, ...urlOnly, SUPABASE_SECRET_KEY: 'sb_secret_x' })).not.toThrow();
+    expect(() => validateEnv({ ...base, ...urlOnly, SUPABASE_SERVICE_ROLE_KEY: 'legacy' })).not.toThrow();
+    expect(() => validateEnv({ ...base, ...urlOnly })).toThrow(/SUPABASE_SECRET_KEY/);
   });
 
   it('starts with Supabase configured, or with local storage explicitly chosen', () => {

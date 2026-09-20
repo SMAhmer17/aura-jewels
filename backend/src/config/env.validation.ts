@@ -15,9 +15,9 @@ export function validateEnv(config: Record<string, unknown>) {
   if (isProd && !str('CORS_ORIGINS')) errors.push('CORS_ORIGINS is required in production');
 
   // Railway's disk is wiped on every deploy, so production must store images in Supabase Storage.
-  const hasSupabase = str('SUPABASE_URL') && str('SUPABASE_SERVICE_ROLE_KEY');
+  const hasSupabase = str('SUPABASE_URL') && (str('SUPABASE_SECRET_KEY') || str('SUPABASE_SERVICE_ROLE_KEY'));
   if (isProd && !hasSupabase && str('STORAGE_DRIVER') !== 'local') {
-    errors.push('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required in production (uploaded images would be lost on redeploy). Set STORAGE_DRIVER=local to override.');
+    errors.push('SUPABASE_URL and SUPABASE_SECRET_KEY are required in production (uploaded images would be lost on redeploy). Set STORAGE_DRIVER=local to override.');
   }
   if (str('SUPABASE_URL') && !/^https:\/\//.test(str('SUPABASE_URL'))) errors.push('SUPABASE_URL must start with https://');
 

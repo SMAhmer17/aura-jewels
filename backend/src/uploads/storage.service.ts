@@ -2,6 +2,7 @@ import { BadGatewayException, Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { supabaseSecretKey } from '../config/supabase';
 
 const CONTENT_TYPES: Record<string, string> = { jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp', mp4: 'video/mp4', webm: 'video/webm' };
 // Largest file the bucket accepts (short videos). Images are held to 5 MB by the upload endpoint itself.
@@ -10,13 +11,13 @@ const MAX_BYTES = 25 * 1024 * 1024;
 /**
  * Where uploaded images live.
  *
- * - With SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY set, files go to a public Supabase Storage bucket and
+ * - With SUPABASE_URL and SUPABASE_SECRET_KEY (or the older SUPABASE_SERVICE_ROLE_KEY) set, files go to a public Supabase Storage bucket and
  *   the returned link points straight at Supabase's CDN. This is what production uses, because Railway's
  *   disk is wiped on every deploy.
  * - Without them, files are written to this server's own disk (UPLOAD_DIR) and served from /uploads.
  *   Fine for local development.
  *
- * The service role key is a server secret. It never leaves the API and must not be put in the frontend.
+ * The secret key is a server secret. It never leaves the API and must not be put in the frontend.
  */
 @Injectable()
 export class StorageService {
@@ -24,7 +25,7 @@ export class StorageService {
   private readonly dir = resolve(process.env.UPLOAD_DIR ?? './uploads');
   private readonly baseUrl = (process.env.PUBLIC_BASE_URL ?? '').replace(/\/$/, '');
   private readonly supabaseUrl = (process.env.SUPABASE_URL ?? '').trim().replace(/\/$/, '');
-  private readonly supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY ?? '').trim();
+  private readonly supabaseKey = supabaseSecretKey();
   private readonly bucket = (process.env.SUPABASE_STORAGE_BUCKET ?? 'product-images').trim();
   private bucketReady?: Promise<void>;
 
@@ -45,6 +46,9 @@ export class StorageService {
   }
 
   private headers(extra: Record<string, string> = {}) {
+    // New-style secret keys (sb_secret_...) are not JWTs: Supabase's gateway wants them in the apikey header only.
+    // Older service_role keys are JWTs and are also sent as the bearer token.
+    if (this.supabaseKey.startsWith('sb_')) return { apikey: this.supabaseKey, ...extra };
     return { Authorization: `Bearer ${this.supabaseKey}`, apikey: this.supabaseKey, ...extra };
   }
 

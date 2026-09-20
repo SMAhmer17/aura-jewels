@@ -7,7 +7,7 @@
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
-    "start:prod": "prisma migrate deploy && node dist/main",
+    "start:prod": "node scripts/preflight.js && prisma migrate deploy && node dist/main",
     "test": "jest --config ./test/jest-e2e.json --runInBand",
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate",
