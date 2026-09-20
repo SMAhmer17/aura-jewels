@@ -10,7 +10,7 @@ import { errorMessage } from "@/lib/api/client";
 import { AccountPanel } from "@/components/layout/AccountDrawer";
 import { OrderItemImage } from "@/components/features/order/OrderItemImage";
 import { Badge } from "@/components/ui/Badge";
-import { BrandLoader } from "@/components/ui/PageSkeletons";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { Button } from "@/components/ui/Button";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { formatPrice } from "@/lib/utils/currency";
@@ -106,7 +106,7 @@ function MyOrders() {
           {error}
         </p>
       )}
-      {!orders && !error && <BrandLoader label="Loading your orders" />}
+      {!orders && !error && <PageLoader label="Loading your orders" />}
 
       {orders && orders.length === 0 && (
         <div className="flex flex-col items-center gap-3 rounded-(--radius-md) border border-dashed border-border p-10 text-center">

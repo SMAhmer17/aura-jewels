@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/Button";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CatalogLoading } from "@/components/ui/CatalogLoading";
-import { ProductDetailSkeleton } from "@/components/ui/PageSkeletons";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { formatPrice } from "@/lib/utils/currency";
 import { toast } from "@/store/toast-store";
 import { Reveal } from "@/components/ui/Reveal";
@@ -29,7 +29,7 @@ export default function ProductPage() {
   const { ready, failed } = useCatalogReady();
   // Wait for the catalog so a slow load is never mistaken for "product not found".
   if (failed) return <CatalogLoading failed />;
-  if (!ready) return <ProductDetailSkeleton />;
+  if (!ready) return <PageLoader />;
   return <ProductDetail />;
 }
 

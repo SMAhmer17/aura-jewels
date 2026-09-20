@@ -14,7 +14,7 @@ import {
 } from "@/lib/utils/order-status";
 import { OrderItemImage } from "@/components/features/order/OrderItemImage";
 import { Badge } from "@/components/ui/Badge";
-import { TableSkeleton } from "@/components/ui/PageSkeletons";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -33,7 +33,7 @@ export default function OrderDetailPage() {
   const { order, loading } = useAdminOrder(params.id);
   const [notes, setNotes] = useState<string | null>(null);
 
-  if (loading) return <TableSkeleton rows={4} />;
+  if (loading) return <PageLoader label="Loading order" />;
 
   if (!order) {
     return (

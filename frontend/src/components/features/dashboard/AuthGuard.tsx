@@ -6,7 +6,7 @@ import { useAdminAuthStore } from "@/store/admin-auth-store";
 import { loadAdminData } from "@/lib/services/admin-data";
 import { errorMessage } from "@/lib/api/client";
 import { Button } from "@/components/ui/Button";
-import { BrandLoader } from "@/components/ui/PageSkeletons";
+import { PageLoader } from "@/components/ui/PageLoader";
 
 type DataState = "loading" | "ready" | "failed";
 
@@ -77,7 +77,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   if (!checked || !isAuthenticated) return null;
 
   if (data === "loading") {
-    return <BrandLoader label="Loading dashboard" fullScreen />;
+    return <PageLoader label="Loading dashboard" fullScreen />;
   }
 
   if (data === "failed") {

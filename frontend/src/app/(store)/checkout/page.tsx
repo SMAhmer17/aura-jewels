@@ -18,6 +18,12 @@ import { formatPrice } from "@/lib/utils/currency";
 import { toast } from "@/store/toast-store";
 import { useSettings } from "@/lib/services/settings-service";
 
+/**
+ * Promo codes are switched off for now: the box is hidden and no code is ever sent with an order.
+ * Set this to true to bring it back. The API, the Discounts dashboard page and the code below still work.
+ */
+const PROMO_CODES_ENABLED = false;
+
 export default function CheckoutPage() {
   const router = useRouter();
   const lines = useCartLines();
@@ -80,7 +86,7 @@ export default function CheckoutPage() {
     if (unavailable.length > 0 || submitting) return;
     setSubmitting(true);
     try {
-      const order = await placeOrder(form, lines, { discountCode: appliedDiscount?.code, giftBox });
+      const order = await placeOrder(form, lines, { discountCode: PROMO_CODES_ENABLED ? appliedDiscount?.code : undefined, giftBox });
       router.push(`/order-confirmation/${order.id}`);
     } catch (error) {
       // Covers a size selling out mid-checkout or a promo code that stopped working; the message is written for customers.
@@ -186,7 +192,7 @@ export default function CheckoutPage() {
             ))}
           </div>
 
-          {appliedDiscount ? (
+          {PROMO_CODES_ENABLED && (appliedDiscount ? (
             <div className="flex items-center justify-between rounded-(--radius-sm) bg-gold/10 px-3 py-2 text-sm">
               <span className="text-ink">Code {appliedDiscount.code} applied</span>
               <button
@@ -212,7 +218,7 @@ export default function CheckoutPage() {
                 {checkingPromo ? "Checking" : "Apply"}
               </Button>
             </div>
-          )}
+          ))}
 
           <div className="flex flex-col gap-2 border-t border-border pt-4 text-sm text-muted">
             <div className="flex justify-between">

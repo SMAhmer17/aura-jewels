@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { ShopPageSkeleton } from "@/components/ui/PageSkeletons";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { retryCatalog } from "@/store/StoreHydration";
 
 /** Shown by storefront pages until the first catalog load finishes, or offers a retry if it failed. */
@@ -17,5 +17,5 @@ export function CatalogLoading({ failed }: { failed: boolean }) {
       </div>
     );
   }
-  return <ShopPageSkeleton />;
+  return <PageLoader />;
 }
