@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import { Loader2, Upload, X } from "lucide-react";
 import { MAX_VIDEO_MB, uploadPostMedia } from "@/lib/services/uploads-service";
 import { errorMessage } from "@/lib/api/client";
+import { FadeImage } from "@/components/ui/FadeImage";
 import { toast } from "@/store/toast-store";
 import type { SocialPost } from "@/types/home-content";
 
@@ -40,8 +41,7 @@ export function SocialPostMediaField({
           // Shows the first frame; the storefront plays it automatically.
           <video src={post.mediaUrl} muted playsInline preload="metadata" aria-label="Video preview" className="h-full w-full object-cover" />
         ) : post.mediaUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={post.mediaUrl} alt="Tile preview" className="h-full w-full object-cover" />
+          <FadeImage src={post.mediaUrl} alt="Tile preview" className="h-full w-full" />
         ) : (
           <span className="px-2">No photo or video</span>
         )}

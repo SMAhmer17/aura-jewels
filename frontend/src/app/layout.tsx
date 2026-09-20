@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import { ToastViewport } from "@/components/ui/Toast";
 import { StoreHydration } from "@/store/StoreHydration";
+import { NavigationProgress } from "@/components/layout/NavigationProgress";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${cormorant.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-body">
+        <NavigationProgress />
         {children}
         <ToastViewport />
         <StoreHydration />

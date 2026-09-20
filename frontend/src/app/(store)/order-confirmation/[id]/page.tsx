@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { useOrderById } from "@/lib/services/orders-service";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { BrandLoader } from "@/components/ui/PageSkeletons";
 import { useCustomerAuthStore } from "@/store/customer-auth-store";
 import { openAccountDrawer } from "@/store/ui-store";
 import { OrderItemImage } from "@/components/features/order/OrderItemImage";
@@ -16,11 +17,7 @@ export default function OrderConfirmationPage() {
   const signedIn = useCustomerAuthStore((s) => s.isAuthenticated);
 
   if (loading) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-24 text-center text-sm text-muted" role="status">
-        Loading your order...
-      </div>
-    );
+    return <BrandLoader label="Loading your order" />;
   }
 
   if (!order) {

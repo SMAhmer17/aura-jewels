@@ -6,6 +6,7 @@ import { errorMessage } from "@/lib/api/client";
 import { ProductImagePicker } from "@/components/features/dashboard/ProductImagePicker";
 import { ProductImagePlaceholder } from "@/components/features/product/ProductImagePlaceholder";
 import { Button } from "@/components/ui/Button";
+import { FadeImage } from "@/components/ui/FadeImage";
 import { toast } from "@/store/toast-store";
 import type { Product } from "@/types/product";
 
@@ -55,8 +56,7 @@ export function ProductImagesPanel({ product, min, max, onClose }: { product: Pr
         <div className="flex flex-col gap-2">
           <div className="aspect-square w-full overflow-hidden rounded-(--radius-md) border border-border bg-cream">
             {images.length > 0 ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={images[shown]} alt={`${product.name}, image ${shown + 1}`} className="h-full w-full object-contain" />
+              <FadeImage key={images[shown]} src={images[shown]} alt={`${product.name}, image ${shown + 1}`} className="h-full w-full" imgClassName="object-contain" loading="eager" />
             ) : (
               <ProductImagePlaceholder id={product.id} className="h-full w-full" />
             )}

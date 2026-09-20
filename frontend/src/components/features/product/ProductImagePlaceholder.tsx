@@ -1,4 +1,4 @@
-import { Gem } from "lucide-react";
+import { BrandMark } from "@/components/ui/BrandMark";
 import { cn } from "@/lib/utils/cn";
 
 const GRADIENTS = [
@@ -14,14 +14,15 @@ function hashToIndex(id: string, mod: number) {
   return hash % mod;
 }
 
+/** The brand wordmark on a soft gold gradient, shown wherever a picture is missing. */
 export function ProductImagePlaceholder({ id, className }: { id: string; className?: string }) {
   const gradient = GRADIENTS[hashToIndex(id, GRADIENTS.length)];
 
   return (
-    <div
-      className={cn("flex items-center justify-center bg-gradient-to-br", gradient, className)}
-    >
-      <Gem className="text-ink/25" size={36} strokeWidth={1} />
+    <div className={cn("relative bg-gradient-to-br", gradient, className)}>
+      <div aria-hidden className="absolute inset-0 flex items-center justify-center @container">
+        <BrandMark />
+      </div>
     </div>
   );
 }

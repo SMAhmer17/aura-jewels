@@ -5,6 +5,7 @@ import { ImagePlus, Loader2, Star, Upload, X } from "lucide-react";
 import { uploadProductImage } from "@/lib/services/uploads-service";
 import { errorMessage } from "@/lib/api/client";
 import { Button } from "@/components/ui/Button";
+import { FadeImage } from "@/components/ui/FadeImage";
 import { Input } from "@/components/ui/Input";
 import { toast } from "@/store/toast-store";
 import { cn } from "@/lib/utils/cn";
@@ -135,12 +136,10 @@ export function ProductImagePicker({ images, onChange, min, max, onBusyChange, s
               <div className={cn("relative aspect-square overflow-hidden rounded-(--radius-sm) border bg-cream", isThumbnail ? "border-gold ring-1 ring-gold" : "border-border", onSelect && selectedIndex === i && "outline-2 outline-offset-2 outline-ink")}>
                 {onSelect ? (
                   <button type="button" onClick={() => onSelect(i)} aria-label={`View image ${i + 1}`} className="block h-full w-full cursor-zoom-in">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt={`Product image ${i + 1}`} className="h-full w-full object-cover" />
+                    <FadeImage src={src} alt={`Product image ${i + 1}`} className="h-full w-full" />
                   </button>
                 ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={src} alt={`Product image ${i + 1}`} className="h-full w-full object-cover" />
+                  <FadeImage src={src} alt={`Product image ${i + 1}`} className="h-full w-full" />
                 )}
                 <button
                   type="button"

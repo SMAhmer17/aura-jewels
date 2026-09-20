@@ -35,8 +35,12 @@ export function ProductCard({ product }: { product: Product }) {
   }
 
   return (
-    <Link href={`/product/${product.slug}`} className="group flex flex-col gap-3">
-      <div className="relative aspect-square overflow-hidden rounded-(--radius-md) border border-border">
+    // On hover the whole card lifts a little and its picture gains a soft shadow (only on devices that can hover).
+    <Link
+      href={`/product/${product.slug}`}
+      className="group flex flex-col gap-3 transition-transform duration-300 ease-out hover:-translate-y-1.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+    >
+      <div className="relative aspect-square overflow-hidden rounded-(--radius-md) border border-border transition-[box-shadow,border-color] duration-300 group-hover:border-gold/40 group-hover:shadow-(--shadow-elevated)">
         <ProductImage
           id={product.id}
           images={product.images}
