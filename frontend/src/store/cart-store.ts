@@ -12,6 +12,8 @@ interface CartState {
   addItem: (productId: string, variantId: string, quantity?: number) => void;
   removeItem: (productId: string, variantId: string) => void;
   updateQuantity: (productId: string, variantId: string, quantity: number) => void;
+  /** Drops lines whose size no longer exists in the catalog (removed or deleted since they were added). */
+  prune: (validVariantIds: Set<string>) => void;
   clear: () => void;
 }
 
@@ -47,8 +49,19 @@ export const useCartStore = create<CartState>()(
               : item,
           ),
         })),
+      prune: (validVariantIds) =>
+        set((state) => {
+          const items = state.items.filter((item) => validVariantIds.has(item.variantId));
+          return items.length === state.items.length ? state : { items };
+        }),
       clear: () => set({ items: [] }),
     }),
-    { name: "aura-jewels-cart", skipHydration: true },
+    {
+      name: "aura-jewels-cart",
+      skipHydration: true,
+      // v2: ids now come from the API, so carts saved with the old demo ids are discarded.
+      version: 2,
+      migrate: () => ({ items: [] }),
+    },
   ),
 );

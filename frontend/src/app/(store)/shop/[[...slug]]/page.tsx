@@ -2,15 +2,19 @@
 
 import { useParams } from "next/navigation";
 import {
+  useCatalogReady,
   useCategories,
   useCategoryBySlug,
   useProducts,
   useProductsByCategoryId,
+  useSoldOutProducts,
 } from "@/lib/services/catalog-service";
 import { ProductCard } from "@/components/features/product/ProductCard";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { CatalogLoading } from "@/components/ui/CatalogLoading";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { Reveal } from "@/components/ui/Reveal";
+import { SoldOutShowcase } from "@/components/features/product/SoldOutShowcase";
 
 export default function ShopPage() {
   const params = useParams<{ slug?: string[] }>();
@@ -20,10 +24,16 @@ export default function ShopPage() {
   const category = useCategoryBySlug(slug ?? "");
   const allProducts = useProducts();
   const categoryProducts = useProductsByCategoryId(category?.id ?? "");
+  const allSold = useSoldOutProducts();
+
+  const { ready, failed } = useCatalogReady();
 
   const showingCategory = Boolean(slug);
   const invalidCategory = showingCategory && !category;
   const products = showingCategory ? categoryProducts : allProducts;
+  const sold = showingCategory ? allSold.filter((p) => p.categoryId === category?.id) : allSold;
+
+  if (!ready) return <CatalogLoading failed={failed} />;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
@@ -66,7 +76,11 @@ export default function ShopPage() {
       ) : products.length === 0 ? (
         <EmptyState
           title="No products yet"
-          description="New pieces are being added to this collection soon."
+          description={
+            sold.length > 0
+              ? "Everything here has sold. See what found a home below, and check back for new pieces."
+              : "New pieces are being added to this collection soon."
+          }
         />
       ) : (
         <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
@@ -76,6 +90,16 @@ export default function ShopPage() {
             </Reveal>
           ))}
         </div>
+      )}
+
+      {!invalidCategory && (
+        <SoldOutShowcase
+          products={sold}
+          eyebrow="Already Sold"
+          heading="Recently sold"
+          description="These pieces have found a home. New designs arrive regularly."
+          className="mt-20 border-t border-border pt-14"
+        />
       )}
     </div>
   );

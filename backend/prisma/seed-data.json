@@ -1,0 +1,628 @@
+{
+  "categories": [
+    {
+      "name": "Rings",
+      "slug": "rings",
+      "description": "Solitaires, bands, and stackable rings for everyday and occasion wear.",
+      "sortOrder": 0
+    },
+    {
+      "name": "Necklaces",
+      "slug": "necklaces",
+      "description": "Pendants, chains, and statement necklaces.",
+      "sortOrder": 1
+    },
+    {
+      "name": "Earrings",
+      "slug": "earrings",
+      "description": "Studs, hoops, and drop earrings.",
+      "sortOrder": 2
+    },
+    {
+      "name": "Bracelets",
+      "slug": "bracelets",
+      "description": "Bangles, cuffs, and chain bracelets.",
+      "sortOrder": 3
+    },
+    {
+      "name": "Bridal",
+      "slug": "bridal",
+      "description": "Bridal sets and occasion jewellery.",
+      "sortOrder": 4
+    },
+    {
+      "name": "Boxes",
+      "slug": "boxes",
+      "description": "Ring boxes, organizers, and travel cases to keep every piece safe.",
+      "sortOrder": 5
+    }
+  ],
+  "products": [
+    {
+      "slug": "aurora-solitaire-ring",
+      "name": "Aurora Solitaire Ring",
+      "description": "A single brilliant-cut stone set in a delicate band, designed for everyday elegance. The Aurora catches light from every angle without overwhelming the hand.",
+      "price": 42500,
+      "compareAtPrice": 48000,
+      "categorySlug": "rings",
+      "material": "18k Gold Plated · Cubic Zirconia",
+      "status": "active",
+      "featured": true,
+      "variants": [
+        {
+          "size": "Size 5",
+          "stock": 8,
+          "sku": "AUR-SOL-SIZE5"
+        },
+        {
+          "size": "Size 6",
+          "stock": 12,
+          "sku": "AUR-SOL-SIZE6"
+        },
+        {
+          "size": "Size 7",
+          "stock": 3,
+          "sku": "AUR-SOL-SIZE7"
+        },
+        {
+          "size": "Size 8",
+          "stock": 0,
+          "sku": "AUR-SOL-SIZE8"
+        }
+      ]
+    },
+    {
+      "slug": "eternity-stack-band",
+      "name": "Eternity Stack Band",
+      "description": "A slim band lined edge-to-edge with pave stones, made to be worn alone or layered with your other rings.",
+      "price": 31000,
+      "compareAtPrice": null,
+      "categorySlug": "rings",
+      "material": "925 Sterling Silver · Cubic Zirconia",
+      "status": "active",
+      "featured": false,
+      "variants": [
+        {
+          "size": "Size 5",
+          "stock": 8,
+          "sku": "ETB-SIZE5"
+        },
+        {
+          "size": "Size 6",
+          "stock": 12,
+          "sku": "ETB-SIZE6"
+        },
+        {
+          "size": "Size 7",
+          "stock": 3,
+          "sku": "ETB-SIZE7"
+        },
+        {
+          "size": "Size 8",
+          "stock": 0,
+          "sku": "ETB-SIZE8"
+        }
+      ]
+    },
+    {
+      "slug": "ivory-pearl-necklace",
+      "name": "Ivory Pearl Necklace",
+      "description": "Freshwater pearls strung along a fine gold-plated chain, finished with a single pendant drop for quiet, everyday polish.",
+      "price": 58000,
+      "compareAtPrice": null,
+      "categorySlug": "necklaces",
+      "material": "18k Gold Plated · Freshwater Pearl",
+      "status": "active",
+      "featured": true,
+      "variants": [
+        {
+          "size": "16\"",
+          "stock": 8,
+          "sku": "IPN-16\""
+        },
+        {
+          "size": "18\"",
+          "stock": 12,
+          "sku": "IPN-18\""
+        }
+      ]
+    },
+    {
+      "slug": "lariat-pendant-necklace",
+      "name": "Lariat Pendant Necklace",
+      "description": "An open-front pendant on a fine chain, sitting just below the collarbone. Pairs easily with layered looks.",
+      "price": 36500,
+      "compareAtPrice": null,
+      "categorySlug": "necklaces",
+      "material": "Rose Gold Plated Brass",
+      "status": "active",
+      "featured": false,
+      "variants": [
+        {
+          "size": "18\"",
+          "stock": 8,
+          "sku": "LPN-18\""
+        }
+      ]
+    },
+    {
+      "slug": "halo-drop-studs",
+      "name": "Halo Drop Studs",
+      "description": "A center stone framed by a halo of smaller accents, set on a secure post back for all-day wear.",
+      "price": 27500,
+      "compareAtPrice": null,
+      "categorySlug": "earrings",
+      "material": "18k Gold Plated · Cubic Zirconia",
+      "status": "active",
+      "featured": true,
+      "variants": [
+        {
+          "size": "One Size",
+          "stock": 8,
+          "sku": "HDS-ONESIZE"
+        }
+      ]
+    },
+    {
+      "slug": "slim-gold-hoops",
+      "name": "Slim Gold Hoops",
+      "description": "Lightweight everyday hoops with a polished finish that catches the light without shouting.",
+      "price": 19500,
+      "compareAtPrice": null,
+      "categorySlug": "earrings",
+      "material": "18k Gold Plated Brass",
+      "status": "active",
+      "featured": false,
+      "variants": [
+        {
+          "size": "Small",
+          "stock": 8,
+          "sku": "SGH-SMALL"
+        },
+        {
+          "size": "Medium",
+          "stock": 12,
+          "sku": "SGH-MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "cascade-drop-earrings",
+      "name": "Cascade Drop Earrings",
+      "description": "Tiered stone drops designed for occasion wear, moving gently with every turn of the head.",
+      "price": 39000,
+      "compareAtPrice": null,
+      "categorySlug": "earrings",
+      "material": "Rhodium Plated · Cubic Zirconia",
+      "status": "active",
+      "featured": false,
+      "variants": [
+        {
+          "size": "One Size",
+          "stock": 8,
+          "sku": "CDE-ONESIZE"
+        }
+      ]
+    },
+    {
+      "slug": "linked-chain-bangle",
+      "name": "Linked Chain Bangle",
+      "description": "A structured chain-link bangle with a secure clasp, sized to sit comfortably at the wrist.",
+      "price": 33500,
+      "compareAtPrice": null,
+      "categorySlug": "bracelets",
+      "material": "18k Gold Plated Brass",
+      "status": "active",
+      "featured": false,
+      "variants": [
+        {
+          "size": "Small",
+          "stock": 8,
+          "sku": "LCB-SMALL"
+        },
+        {
+          "size": "Medium",
+          "stock": 12,
+          "sku": "LCB-MEDIUM"
+        },
+        {
+          "size": "Large",
+          "stock": 3,
+          "sku": "LCB-LARGE"
+        }
+      ]
+    },
+    {
+      "slug": "classic-tennis-bracelet",
+      "name": "Classic Tennis Bracelet",
+      "description": "A continuous line of brilliant-cut stones in a timeless setting, dressy enough for any occasion.",
+      "price": 47000,
+      "compareAtPrice": null,
+      "categorySlug": "bracelets",
+      "material": "925 Sterling Silver · Cubic Zirconia",
+      "status": "active",
+      "featured": true,
+      "variants": [
+        {
+          "size": "6.5\"",
+          "stock": 8,
+          "sku": "CTB-6.5\""
+        },
+        {
+          "size": "7\"",
+          "stock": 12,
+          "sku": "CTB-7\""
+        }
+      ]
+    },
+    {
+      "slug": "serena-bridal-set",
+      "name": "Serena Bridal Set",
+      "description": "A matching necklace and earring set designed for bridal wear, with layered stone detailing that photographs beautifully.",
+      "price": 89000,
+      "compareAtPrice": 99000,
+      "categorySlug": "bridal",
+      "material": "Rhodium Plated · Cubic Zirconia",
+      "status": "active",
+      "featured": true,
+      "variants": [
+        {
+          "size": "One Size",
+          "stock": 8,
+          "sku": "SBS-ONESIZE"
+        }
+      ]
+    },
+    {
+      "slug": "layla-maang-tikka",
+      "name": "Layla Maang Tikka",
+      "description": "A delicate centre-parting piece finished with a teardrop stone, made for bridal and formal occasions.",
+      "price": 41000,
+      "compareAtPrice": null,
+      "categorySlug": "bridal",
+      "material": "18k Gold Plated · Kundan Work",
+      "status": "active",
+      "featured": false,
+      "variants": [
+        {
+          "size": "One Size",
+          "stock": 8,
+          "sku": "LMT-ONESIZE"
+        }
+      ]
+    },
+    {
+      "slug": "engraved-signet-ring",
+      "name": "Engraved Signet Ring",
+      "description": "A bold, polished signet ring ready for personal engraving. Currently in final sampling.",
+      "price": 29500,
+      "compareAtPrice": null,
+      "categorySlug": "rings",
+      "material": "18k Gold Plated Brass",
+      "status": "draft",
+      "featured": false,
+      "variants": [
+        {
+          "size": "Size 6",
+          "stock": 8,
+          "sku": "ESR-SIZE6"
+        },
+        {
+          "size": "Size 7",
+          "stock": 12,
+          "sku": "ESR-SIZE7"
+        }
+      ]
+    },
+    {
+      "slug": "velvet-ring-box",
+      "name": "Velvet Ring Box",
+      "description": "A soft-touch velvet box with a snug satin-lined slot, made for gifting a ring or keeping a favourite safe.",
+      "price": 3500,
+      "compareAtPrice": null,
+      "categorySlug": "boxes",
+      "material": "Velvet · Satin Lining",
+      "status": "active",
+      "featured": true,
+      "variants": [
+        {
+          "size": "Black",
+          "stock": 8,
+          "sku": "VRB-BLACK"
+        },
+        {
+          "size": "Ivory",
+          "stock": 12,
+          "sku": "VRB-IVORY"
+        }
+      ]
+    },
+    {
+      "slug": "signature-jewellery-organizer",
+      "name": "Signature Jewellery Organizer",
+      "description": "A structured two-tier organizer with ring rolls, earring slots, and a necklace tray, finished in our black and gold.",
+      "price": 12500,
+      "compareAtPrice": null,
+      "categorySlug": "boxes",
+      "material": "Faux Leather · Gold Accents",
+      "status": "active",
+      "featured": true,
+      "variants": [
+        {
+          "size": "Black",
+          "stock": 8,
+          "sku": "SJO-BLACK"
+        }
+      ]
+    },
+    {
+      "slug": "travel-jewellery-case",
+      "name": "Travel Jewellery Case",
+      "description": "A compact zip case with padded compartments so your pieces stay tangle-free on the move.",
+      "price": 6800,
+      "compareAtPrice": null,
+      "categorySlug": "boxes",
+      "material": "Vegan Leather · Soft Lining",
+      "status": "active",
+      "featured": false,
+      "variants": [
+        {
+          "size": "Black",
+          "stock": 8,
+          "sku": "TJC-BLACK"
+        },
+        {
+          "size": "Ivory",
+          "stock": 12,
+          "sku": "TJC-IVORY"
+        }
+      ]
+    }
+  ],
+  "discounts": [
+    {
+      "code": "WELCOME10",
+      "type": "percentage",
+      "value": 10,
+      "active": true,
+      "usageLimit": null,
+      "minOrderAmount": null
+    },
+    {
+      "code": "FLAT500",
+      "type": "fixed",
+      "value": 500,
+      "active": true,
+      "usageLimit": 100,
+      "minOrderAmount": null
+    }
+  ],
+  "reviews": [
+    {
+      "productSlug": "aurora-solitaire-ring",
+      "author": "Ayesha K.",
+      "rating": 5,
+      "comment": "Beautiful ring, catches the light perfectly and it is comfortable enough to wear all day.",
+      "createdAt": "2026-03-02T00:00:00.000Z"
+    },
+    {
+      "productSlug": "aurora-solitaire-ring",
+      "author": "Maryam S.",
+      "rating": 4,
+      "comment": "Looks exactly like the photos. Packaging was lovely too.",
+      "createdAt": "2026-03-10T00:00:00.000Z"
+    },
+    {
+      "productSlug": "ivory-pearl-necklace",
+      "author": "Hira A.",
+      "rating": 5,
+      "comment": "The pearls have a gorgeous glow. I have worn it to two weddings already.",
+      "createdAt": "2026-03-05T00:00:00.000Z"
+    },
+    {
+      "productSlug": "halo-drop-studs",
+      "author": "Sana R.",
+      "rating": 5,
+      "comment": "Light, sparkly, and they do not bother my ears. Perfect everyday studs.",
+      "createdAt": "2026-03-08T00:00:00.000Z"
+    },
+    {
+      "productSlug": "halo-drop-studs",
+      "author": "Noor F.",
+      "rating": 4,
+      "comment": "Very pretty. I wish there was a slightly larger size.",
+      "createdAt": "2026-03-15T00:00:00.000Z"
+    },
+    {
+      "productSlug": "classic-tennis-bracelet",
+      "author": "Zainab M.",
+      "rating": 5,
+      "comment": "Elegant and secure clasp. Got so many compliments.",
+      "createdAt": "2026-03-12T00:00:00.000Z"
+    },
+    {
+      "productSlug": "serena-bridal-set",
+      "author": "Fatima H.",
+      "rating": 5,
+      "comment": "Wore this for my nikah and it photographed beautifully.",
+      "createdAt": "2026-03-18T00:00:00.000Z"
+    },
+    {
+      "productSlug": "linked-chain-bangle",
+      "author": "Iqra T.",
+      "rating": 4,
+      "comment": "Sturdy and stylish. Sized true to the chart.",
+      "createdAt": "2026-03-20T00:00:00.000Z"
+    },
+    {
+      "productSlug": "velvet-ring-box",
+      "author": "Amna B.",
+      "rating": 5,
+      "comment": "Bought it as a gift box and the finish feels really premium.",
+      "createdAt": "2026-03-22T00:00:00.000Z"
+    }
+  ],
+  "homeContent": {
+    "hero": {
+      "eyebrow": "Aura Jewels · By ZAS",
+      "heading": "Jewellery made for the moments you remember",
+      "body": "Considered pieces in gold, silver, and stone, designed in Pakistan for everyday elegance and occasions worth marking.",
+      "ctaLabel": "Shop the Collection",
+      "ctaHref": "/shop"
+    },
+    "sections": [
+      {
+        "id": "categories",
+        "visible": true
+      },
+      {
+        "id": "bestsellers",
+        "visible": true
+      },
+      {
+        "id": "sold",
+        "visible": true
+      },
+      {
+        "id": "why",
+        "visible": true
+      },
+      {
+        "id": "testimonials",
+        "visible": true
+      },
+      {
+        "id": "social",
+        "visible": true
+      },
+      {
+        "id": "trust",
+        "visible": true
+      }
+    ],
+    "categoriesHeading": "Shop by Category",
+    "bestsellersHeading": "Bestsellers",
+    "sold": {
+      "eyebrow": "Already Sold",
+      "heading": "Pieces that found a home",
+      "description": "These designs have sold out. Follow along to see what we release next."
+    },
+    "why": {
+      "eyebrow": "Why Aura Jewels",
+      "heading": "What makes us different",
+      "points": [
+        {
+          "id": "w1",
+          "title": "Considered Design",
+          "description": "Every piece is refined over several rounds before it earns a place in the collection."
+        },
+        {
+          "id": "w2",
+          "title": "Hand Checked Quality",
+          "description": "Each order is inspected by hand before it leaves our studio."
+        },
+        {
+          "id": "w3",
+          "title": "Made for Every Day",
+          "description": "Light, comfortable pieces designed to be worn often, not saved for a drawer."
+        },
+        {
+          "id": "w4",
+          "title": "Gift Ready",
+          "description": "Choose a jewellery box at checkout and your order arrives ready to give."
+        }
+      ]
+    },
+    "testimonials": {
+      "eyebrow": "Customer Love",
+      "heading": "What our customers say",
+      "items": [
+        {
+          "id": "t1",
+          "name": "Ayesha K.",
+          "city": "Karachi",
+          "rating": 5,
+          "quote": "The solitaire ring looks even better in person. It arrived beautifully packed and I have not taken it off since."
+        },
+        {
+          "id": "t2",
+          "name": "Hira A.",
+          "city": "Lahore",
+          "rating": 5,
+          "quote": "I ordered the pearl necklace for a wedding and got compliments all night. The quality feels far above the price."
+        },
+        {
+          "id": "t3",
+          "name": "Sana R.",
+          "city": "Islamabad",
+          "rating": 5,
+          "quote": "Fast delivery, easy sizing, and the earrings are light enough to wear all day. Already planning my next order."
+        }
+      ]
+    },
+    "social": {
+      "eyebrow": "Follow Along",
+      "handle": "@aurajewelsbyzas",
+      "description": "New pieces, styling ideas, and behind the scenes from our studio.",
+      "instagramUrl": "https://www.instagram.com/aurajewelsbyzas/",
+      "tiktokUrl": "https://www.tiktok.com/@aurajewelsbyzas",
+      "facebookUrl": "https://www.facebook.com/aurajewelsbyzas/",
+      "posts": [
+        {
+          "id": "p1",
+          "caption": "New arrivals on the bench",
+          "url": "https://www.instagram.com/aurajewelsbyzas/"
+        },
+        {
+          "id": "p2",
+          "caption": "Styling the Aurora solitaire",
+          "url": "https://www.instagram.com/aurajewelsbyzas/"
+        },
+        {
+          "id": "p3",
+          "caption": "Packing orders with care",
+          "url": "https://www.instagram.com/aurajewelsbyzas/"
+        },
+        {
+          "id": "p4",
+          "caption": "Bridal set close up",
+          "url": "https://www.instagram.com/aurajewelsbyzas/"
+        },
+        {
+          "id": "p5",
+          "caption": "Customer favourite: pearl drops",
+          "url": "https://www.instagram.com/aurajewelsbyzas/"
+        },
+        {
+          "id": "p6",
+          "caption": "Behind the scenes at the studio",
+          "url": "https://www.instagram.com/aurajewelsbyzas/"
+        }
+      ]
+    },
+    "trustPoints": [
+      {
+        "id": "tr1",
+        "label": "Quality checked before shipping"
+      },
+      {
+        "id": "tr2",
+        "label": "Nationwide delivery across Pakistan"
+      },
+      {
+        "id": "tr3",
+        "label": "7-day easy returns"
+      }
+    ]
+  },
+  "settings": {
+    "storeName": "Aura Jewels",
+    "tagline": "By ZAS",
+    "supportEmail": "contact@jewlsbyzas.com",
+    "supportPhone": "0311 8706843",
+    "shippingFlatRate": 250,
+    "freeShippingThreshold": 50000,
+    "giftBoxPrice": 300,
+    "lowStockThreshold": 5
+  }
+}

@@ -7,10 +7,12 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { toast } from "@/store/toast-store";
+import { errorMessage } from "@/lib/api/client";
 
 export default function SettingsPage() {
   const settings = useSettings();
   const [form, setForm] = useState(settings);
+  const [saving, setSaving] = useState(false);
   const [syncedSettings, setSyncedSettings] = useState<StoreSettings>(settings);
 
   if (settings !== syncedSettings) {
@@ -18,14 +20,23 @@ export default function SettingsPage() {
     setForm(settings);
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    updateSettings({
-      ...form,
-      shippingFlatRate: Number(form.shippingFlatRate) || 0,
-      freeShippingThreshold: Number(form.freeShippingThreshold) || 0,
-    });
-    toast({ title: "Settings saved", variant: "success" });
+    setSaving(true);
+    try {
+      await updateSettings({
+        ...form,
+        shippingFlatRate: Number(form.shippingFlatRate) || 0,
+        freeShippingThreshold: Number(form.freeShippingThreshold) || 0,
+        giftBoxPrice: Number(form.giftBoxPrice) || 0,
+        lowStockThreshold: Number(form.lowStockThreshold) || 0,
+      });
+      toast({ title: "Settings saved", variant: "success" });
+    } catch (error) {
+      toast({ title: "Could not save settings", description: errorMessage(error), variant: "error" });
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -65,6 +76,20 @@ export default function SettingsPage() {
 
         <Card>
           <CardContent className="flex flex-col gap-4">
+            <h2 className="text-base text-ink">Inventory</h2>
+            <Input
+              label="Low Stock Threshold"
+              type="number"
+              min="0"
+              value={form.lowStockThreshold}
+              onChange={(e) => setForm((prev) => ({ ...prev, lowStockThreshold: Number(e.target.value) }))}
+              hint="Sizes at or below this many units are flagged as low stock"
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="flex flex-col gap-4">
             <h2 className="text-base text-ink">Shipping</h2>
             <Input
               label="Flat Shipping Rate (PKR)"
@@ -81,11 +106,19 @@ export default function SettingsPage() {
               onChange={(e) => setForm((prev) => ({ ...prev, freeShippingThreshold: Number(e.target.value) }))}
               hint="Orders at or above this subtotal ship free"
             />
+            <Input
+              label="Gift Box Price (PKR)"
+              type="number"
+              min="0"
+              value={form.giftBoxPrice}
+              onChange={(e) => setForm((prev) => ({ ...prev, giftBoxPrice: Number(e.target.value) }))}
+              hint="Charged when a customer adds a gift box at checkout"
+            />
           </CardContent>
         </Card>
 
-        <Button type="submit" variant="primary" size="lg" className="self-start">
-          Save Changes
+        <Button type="submit" variant="primary" size="lg" className="self-start" disabled={saving}>
+          {saving ? "Saving..." : "Save Changes"}
         </Button>
       </form>
     </div>

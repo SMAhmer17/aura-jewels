@@ -28,9 +28,9 @@ export function MobileNav({ open, onClose, categories }: MobileNavProps) {
       onClick={(e) => {
         if (e.target === dialogRef.current) onClose();
       }}
-      className="m-0 ml-auto h-dvh max-h-dvh w-full max-w-xs border-0 bg-surface p-0 shadow-(--shadow-elevated) backdrop:bg-ink/60"
+      className="m-0 ml-auto h-dvh max-h-dvh w-full max-w-xs border-0 border-l border-white/50 bg-ivory/40 p-0 shadow-(--shadow-elevated) backdrop-blur-lg backdrop-saturate-150 backdrop:bg-ink/20 open:animate-[drawer-in_250ms_ease-out] motion-reduce:open:animate-none"
     >
-      <div className="flex items-center justify-between border-b border-border px-6 py-5">
+      <div className="flex items-center justify-between border-b border-ink/10 px-6 py-5">
         <span className="text-lg text-ink">Menu</span>
         <button
           type="button"
@@ -42,20 +42,23 @@ export function MobileNav({ open, onClose, categories }: MobileNavProps) {
         </button>
       </div>
       <nav className="flex flex-col px-6 py-4">
+        <Link href="/" onClick={onClose} className="border-b border-ink/10 py-4 text-base text-ink">
+          Home
+        </Link>
         {categories.map((category) => (
           <Link
             key={category.id}
             href={`/shop/${category.slug}`}
             onClick={onClose}
-            className="border-b border-border py-4 text-base text-ink"
+            className="border-b border-ink/10 py-4 text-base text-ink"
           >
             {category.name}
           </Link>
         ))}
-        <Link href="/shop" onClick={onClose} className="border-b border-border py-4 text-base text-ink">
+        <Link href="/shop" onClick={onClose} className="border-b border-ink/10 py-4 text-base text-ink">
           Shop All
         </Link>
-        <Link href="/about" onClick={onClose} className="border-b border-border py-4 text-base text-ink">
+        <Link href="/about" onClick={onClose} className="border-b border-ink/10 py-4 text-base text-ink">
           About
         </Link>
         <Link href="/contact" onClick={onClose} className="py-4 text-base text-ink">

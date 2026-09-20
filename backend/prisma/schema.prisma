@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ProductStatus {
+  active
+  draft
+  archived
+}
+
+enum OrderStatus {
+  pending
+  processing
+  shipped
+  delivered
+  cancelled
+}
+
+enum PaymentStatus {
+  unpaid
+  paid
+  refunded
+}
+
+enum DiscountType {
+  percentage
+  fixed
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  description String?
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  products    Product[]
+}
+
+model Product {
+  id             String           @id @default(uuid())
+  slug           String           @unique
+  name           String
+  description    String           @default("")
+  price          Int
+  compareAtPrice Int?
+  categoryId     String?
+  category       Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  material       String           @default("")
+  images         String[]         @default([])
+  status         ProductStatus    @default(active)
+  featured       Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+  variants       ProductVariant[]
+  reviews        Review[]
+  orderItems     OrderItem[]
+
+  @@index([categoryId])
+  @@index([status])
+}
+
+model ProductVariant {
+  id         String      @id @default(uuid())
+  productId  String
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size       String
+  stock      Int         @default(0)
+  sku        String      @unique
+  /// Display order set by the admin (Size 5, Size 6, ...)
+  position   Int         @default(0)
+  orderItems OrderItem[]
+
+  @@unique([productId, size])
+  @@index([productId])
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  author      String
+  rating      Int
+  comment     String
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@index([productId])
+}
+
+/// The single store admin. Created by the seed script from ADMIN_EMAIL / ADMIN_PASSWORD.
+model AdminUser {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+/// Optional customer accounts. Guests can order without one.
+model Customer {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  createdAt    DateTime @default(now())
+  orders       Order[]
+}
+
+model Discount {
+  id             String       @id @default(uuid())
+  code           String       @unique
+  type           DiscountType
+  value          Int
+  active         Boolean      @default(true)
+  usageLimit     Int?
+  usedCount      Int          @default(0)
+  startsAt       DateTime?    @db.Date
+  endsAt         DateTime?    @db.Date
+  minOrderAmount Int?
+  createdAt      DateTime     @default(now())
+}
+
+model Order {
+  id             String        @id @default(uuid())
+  /// Sequential number shown to people as AJ-<year>-<1000 + orderNo>
+  orderNo        Int           @unique @default(autoincrement())
+  customerId     String?
+  customer       Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerName   String
+  email          String
+  phone          String
+  address        String
+  city           String
+  subtotal       Int
+  shipping       Int
+  discountCode   String?
+  discountAmount Int           @default(0)
+  giftBoxFee     Int           @default(0)
+  total          Int
+  status         OrderStatus   @default(pending)
+  paymentMethod  String        @default("cod")
+  paymentStatus  PaymentStatus @default(unpaid)
+  notes          String?
+  createdAt      DateTime      @default(now())
+  items          OrderItem[]
+  events         OrderEvent[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([email])
+}
+
+/// A snapshot of what was bought, so order history survives later product edits.
+model OrderItem {
+  id        String          @id @default(uuid())
+  orderId   String
+  order     Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  name      String
+  size      String
+  price     Int
+  quantity  Int
+
+  @@index([orderId])
+}
+
+model OrderEvent {
+  id        String      @id @default(uuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  createdAt DateTime    @default(now())
+
+  @@index([orderId])
+}
+
+/// Single row (id = 1). The whole home page content as JSON, edited from the admin.
+model HomeContent {
+  id        Int      @id @default(1)
+  content   Json
+  updatedAt DateTime @updatedAt
+}
+
+/// Single row (id = 1).
+model Settings {
+  id                    Int    @id @default(1)
+  storeName             String @default("Aura Jewels")
+  tagline               String @default("By ZAS")
+  supportEmail          String @default("")
+  supportPhone          String @default("")
+  shippingFlatRate      Int    @default(250)
+  freeShippingThreshold Int    @default(50000)
+  giftBoxPrice          Int    @default(300)
+  lowStockThreshold     Int    @default(5)
+}

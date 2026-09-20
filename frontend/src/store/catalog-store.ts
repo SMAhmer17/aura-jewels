@@ -1,66 +1,36 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import type { Category } from "@/types/category";
 import type { Product } from "@/types/product";
-import { seedCategories } from "@/lib/mock-data/categories";
-import { seedProducts } from "@/lib/mock-data/products";
 
+/** Products with no category (their category was deleted) use this id on the client. The API stores null. */
 export const UNCATEGORIZED_ID = "uncategorized";
 
 interface CatalogState {
+  /** False until the first load from the API finishes, so pages can show a skeleton instead of "not found". */
+  ready: boolean;
+  /** Set when the first load failed, so pages can offer a retry instead of looking empty. */
+  loadFailed: boolean;
   categories: Category[];
+  /** Active products only: what the public storefront sees (sold out ones included, filtered by services). */
   products: Product[];
-  addCategory: (input: Omit<Category, "id" | "createdAt">) => void;
-  updateCategory: (id: string, input: Partial<Omit<Category, "id" | "createdAt">>) => void;
-  removeCategory: (id: string) => void;
-  addProduct: (input: Omit<Product, "id" | "createdAt">) => void;
-  updateProduct: (id: string, input: Partial<Omit<Product, "id" | "createdAt">>) => void;
-  removeProduct: (id: string) => void;
+  /** Every product including drafts and archived. Only loaded for the signed-in admin. */
+  adminProducts: Product[];
+  setCatalog: (categories: Category[], products: Product[]) => void;
+  setCategories: (categories: Category[]) => void;
+  setProducts: (products: Product[]) => void;
+  setAdminProducts: (products: Product[]) => void;
+  setLoadFailed: (failed: boolean) => void;
 }
 
-export const useCatalogStore = create<CatalogState>()(
-  persist(
-    (set) => ({
-      categories: seedCategories,
-      products: seedProducts,
-      addCategory: (input) =>
-        set((state) => ({
-          categories: [
-            ...state.categories,
-            { ...input, id: crypto.randomUUID(), createdAt: new Date().toISOString() },
-          ],
-        })),
-      updateCategory: (id, input) =>
-        set((state) => ({
-          categories: state.categories.map((category) =>
-            category.id === id ? { ...category, ...input } : category,
-          ),
-        })),
-      removeCategory: (id) =>
-        set((state) => ({
-          categories: state.categories.filter((category) => category.id !== id),
-          products: state.products.map((product) =>
-            product.categoryId === id ? { ...product, categoryId: UNCATEGORIZED_ID } : product,
-          ),
-        })),
-      addProduct: (input) =>
-        set((state) => ({
-          products: [
-            ...state.products,
-            { ...input, id: crypto.randomUUID(), createdAt: new Date().toISOString() },
-          ],
-        })),
-      updateProduct: (id, input) =>
-        set((state) => ({
-          products: state.products.map((product) =>
-            product.id === id ? { ...product, ...input } : product,
-          ),
-        })),
-      removeProduct: (id) =>
-        set((state) => ({
-          products: state.products.filter((product) => product.id !== id),
-        })),
-    }),
-    { name: "aura-jewels-catalog", skipHydration: true },
-  ),
-);
+export const useCatalogStore = create<CatalogState>()((set) => ({
+  ready: false,
+  loadFailed: false,
+  categories: [],
+  products: [],
+  adminProducts: [],
+  setCatalog: (categories, products) => set({ categories, products, ready: true, loadFailed: false }),
+  setCategories: (categories) => set({ categories }),
+  setProducts: (products) => set({ products }),
+  setAdminProducts: (adminProducts) => set({ adminProducts }),
+  setLoadFailed: (loadFailed) => set({ loadFailed }),
+}));

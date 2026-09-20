@@ -1,23 +1,22 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import type { Order, OrderStatus } from "@/types/order";
+import type { Order } from "@/types/order";
 
 interface OrdersState {
+  /** Every order, for the signed-in admin. Empty until the dashboard loads them. */
   orders: Order[];
-  addOrder: (order: Order) => void;
-  updateStatus: (id: string, status: OrderStatus) => void;
+  loaded: boolean;
+  setOrders: (orders: Order[]) => void;
+  upsertOrder: (order: Order) => void;
 }
 
-export const useOrdersStore = create<OrdersState>()(
-  persist(
-    (set) => ({
-      orders: [],
-      addOrder: (order) => set((state) => ({ orders: [order, ...state.orders] })),
-      updateStatus: (id, status) =>
-        set((state) => ({
-          orders: state.orders.map((order) => (order.id === id ? { ...order, status } : order)),
-        })),
-    }),
-    { name: "aura-jewels-orders", skipHydration: true },
-  ),
-);
+export const useOrdersStore = create<OrdersState>()((set) => ({
+  orders: [],
+  loaded: false,
+  setOrders: (orders) => set({ orders, loaded: true }),
+  upsertOrder: (order) =>
+    set((state) =>
+      state.orders.some((o) => o.id === order.id)
+        ? { orders: state.orders.map((o) => (o.id === order.id ? order : o)) }
+        : { orders: [order, ...state.orders] },
+    ),
+}));

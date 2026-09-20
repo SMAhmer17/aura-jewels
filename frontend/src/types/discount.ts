@@ -7,6 +7,10 @@ export interface Discount {
   value: number;
   active: boolean;
   usageLimit: number | null;
+  /** Optional date range (YYYY-MM-DD) in which the code works. */
+  startsAt?: string | null;
+  endsAt?: string | null;
+  minOrderAmount?: number | null;
   usedCount: number;
   createdAt: string;
 }

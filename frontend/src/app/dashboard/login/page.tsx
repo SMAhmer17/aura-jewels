@@ -1,22 +1,41 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminAuthStore } from "@/store/admin-auth-store";
+import { adminLogin } from "@/lib/services/auth-service";
+import { errorMessage } from "@/lib/api/client";
 import { Logo } from "@/components/layout/Logo";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const login = useAdminAuthStore((s) => s.login);
+  const isAuthenticated = useAdminAuthStore((s) => s.isAuthenticated);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(e: FormEvent) {
+  // Someone who is already signed in goes straight to the dashboard.
+  useEffect(() => {
+    useAdminAuthStore.persist.rehydrate();
+  }, []);
+  useEffect(() => {
+    if (isAuthenticated) router.replace("/dashboard");
+  }, [isAuthenticated, router]);
+
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    login(email);
-    router.push("/dashboard");
+    setSubmitting(true);
+    setError("");
+    try {
+      await adminLogin(email, password);
+      router.push("/dashboard");
+    } catch (err) {
+      setError(errorMessage(err));
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -41,13 +60,15 @@ export default function AdminLoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Button type="submit" variant="primary" size="lg" className="mt-2">
-            Sign In
+          {error && (
+            <p role="alert" className="text-sm text-error">
+              {error}
+            </p>
+          )}
+          <Button type="submit" variant="primary" size="lg" className="mt-2" disabled={submitting}>
+            {submitting ? "Signing in..." : "Sign In"}
           </Button>
         </form>
-        <p className="mt-6 text-center text-xs text-muted">
-          Demo mode: any email and password will work.
-        </p>
       </div>
     </div>
   );

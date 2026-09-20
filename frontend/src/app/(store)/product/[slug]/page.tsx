@@ -7,30 +7,41 @@ import { Heart } from "lucide-react";
 import {
   useProductBySlug,
   useCategoryById,
-  useProductsByCategoryId,
+  useProducts,
+  useCatalogReady,
 } from "@/lib/services/catalog-service";
 import { addToCart } from "@/lib/services/cart-service";
 import { toggleWishlist, useIsWishlisted } from "@/lib/services/wishlist-service";
-import { ProductImagePlaceholder } from "@/components/features/product/ProductImagePlaceholder";
+import { ProductGallery } from "@/components/features/product/ProductGallery";
+import { ProductReviews } from "@/components/features/product/ProductReviews";
 import { ProductCard } from "@/components/features/product/ProductCard";
 import { Button } from "@/components/ui/Button";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { CatalogLoading } from "@/components/ui/CatalogLoading";
 import { formatPrice } from "@/lib/utils/currency";
 import { toast } from "@/store/toast-store";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils/cn";
 
 export default function ProductPage() {
+  const { ready, failed } = useCatalogReady();
+  // Wait for the catalog so a slow load is never mistaken for "product not found".
+  if (!ready) return <CatalogLoading failed={failed} />;
+  return <ProductDetail />;
+}
+
+function ProductDetail() {
   const params = useParams<{ slug: string }>();
   const product = useProductBySlug(params.slug);
   const category = useCategoryById(product?.categoryId ?? "");
-  const related = useProductsByCategoryId(product?.categoryId ?? "").filter(
-    (p) => p.id !== product?.id,
-  );
+  const allProducts = useProducts();
+  const sameCategory = allProducts.filter((p) => p.id !== product?.id && p.categoryId === product?.categoryId);
+  const others = allProducts.filter((p) => p.id !== product?.id && p.categoryId !== product?.categoryId);
+  const related = [...sameCategory, ...others].slice(0, 4);
   const isWishlisted = useIsWishlisted(product?.id ?? "");
 
-  const [selectedVariantId, setSelectedVariantId] = useState(product?.variants[0]?.id);
+  const [selectedVariantId, setSelectedVariantId] = useState(product?.variants.find((v) => v.stock > 0)?.id ?? product?.variants[0]?.id);
   const selectedVariant = product?.variants.find((v) => v.id === selectedVariantId);
 
   if (!product) {
@@ -74,21 +85,7 @@ export default function ProductPage() {
       </nav>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <div className="flex flex-col gap-3">
-          <div className="aspect-square overflow-hidden rounded-(--radius-md) border border-border">
-            <ProductImagePlaceholder id={product.id} className="h-full w-full" />
-          </div>
-          <div className="grid grid-cols-4 gap-3">
-            {[0, 1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="aspect-square overflow-hidden rounded-(--radius-sm) border border-border"
-              >
-                <ProductImagePlaceholder id={`${product.id}-${i}`} className="h-full w-full" />
-              </div>
-            ))}
-          </div>
-        </div>
+        <ProductGallery key={product.id} productId={product.id} name={product.name} images={product.images} />
 
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
@@ -108,7 +105,7 @@ export default function ProductPage() {
 
           {product.variants.length > 1 && (
             <div className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-ink">Size</span>
+              <span className="text-sm font-medium text-ink">{category?.slug === "boxes" ? "Colour" : "Size"}</span>
               <div className="flex flex-wrap gap-2">
                 {product.variants.map((variant) => (
                   <button
@@ -164,7 +161,7 @@ export default function ProductPage() {
         <div className="mt-20">
           <h2 className="mb-6 text-2xl text-ink">You may also like</h2>
           <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
-            {related.slice(0, 4).map((p, i) => (
+            {related.map((p, i) => (
               <Reveal key={p.id} delay={i * 60}>
                 <ProductCard product={p} />
               </Reveal>
@@ -172,6 +169,8 @@ export default function ProductPage() {
           </div>
         </div>
       )}
+
+      <ProductReviews productId={product.id} />
     </div>
   );
 }

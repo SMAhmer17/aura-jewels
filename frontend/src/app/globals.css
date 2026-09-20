@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
 :root {
+  /* The site is light only. This stops browsers (and their "force dark" modes) from darkening
+     native controls such as dropdowns, scrollbars, date pickers and autofill. */
+  color-scheme: light;
+
   /* Core palette */
   --color-ink: #0b0b0c; /* near-black — dark surfaces, primary text */
   --color-ink-soft: #1f1b16; /* charcoal-espresso — secondary dark surface */
@@ -77,4 +81,13 @@ h6 {
   font-family: var(--font-heading);
   font-weight: 600;
   letter-spacing: 0.01em;
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }

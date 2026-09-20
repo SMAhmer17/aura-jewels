@@ -16,6 +16,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/ui/Table";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { toast } from "@/store/toast-store";
+import { errorMessage } from "@/lib/api/client";
 import { slugify } from "@/lib/utils/slugify";
 
 interface FormState {
@@ -34,6 +35,7 @@ export default function CategoriesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
+  const [saving, setSaving] = useState(false);
 
   function openAddModal() {
     setEditingId(null);
@@ -55,25 +57,36 @@ export default function CategoriesPage() {
     }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name.trim() || !form.slug.trim()) return;
+    if (!form.name.trim() || !form.slug.trim() || saving) return;
 
-    if (editingId) {
-      updateCategory(editingId, { name: form.name, slug: form.slug, description: form.description });
-      toast({ title: "Category updated", description: form.name, variant: "success" });
-    } else {
-      addCategory({ name: form.name, slug: form.slug, description: form.description });
-      toast({ title: "Category added", description: `${form.name} now appears on the storefront`, variant: "success" });
+    setSaving(true);
+    try {
+      if (editingId) {
+        await updateCategory(editingId, { name: form.name, slug: form.slug, description: form.description });
+        toast({ title: "Category updated", description: form.name, variant: "success" });
+      } else {
+        await addCategory({ name: form.name, slug: form.slug, description: form.description });
+        toast({ title: "Category added", description: `${form.name} now appears on the storefront`, variant: "success" });
+      }
+      setModalOpen(false);
+    } catch (error) {
+      toast({ title: "Could not save the category", description: errorMessage(error), variant: "error" });
+    } finally {
+      setSaving(false);
     }
-    setModalOpen(false);
   }
 
-  function confirmDelete() {
+  async function confirmDelete() {
     if (!deleteTarget) return;
-    removeCategory(deleteTarget.id);
-    toast({ title: "Category removed", description: deleteTarget.name });
-    setDeleteTarget(null);
+    try {
+      await removeCategory(deleteTarget.id);
+      toast({ title: "Category removed", description: deleteTarget.name });
+      setDeleteTarget(null);
+    } catch (error) {
+      toast({ title: "Could not remove the category", description: errorMessage(error), variant: "error" });
+    }
   }
 
   return (
@@ -158,7 +171,7 @@ export default function CategoriesPage() {
             <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">{editingId ? "Save Changes" : "Add Category"}</Button>
+            <Button type="submit" disabled={saving}>{saving ? "Saving..." : editingId ? "Save Changes" : "Add Category"}</Button>
           </div>
         </form>
       </Modal>

@@ -36,4 +36,11 @@ export const seedCategories: Category[] = [
     description: "Bridal sets and occasion jewellery.",
     createdAt: "2026-01-01T00:00:00.000Z",
   },
+  {
+    id: "cat-boxes",
+    name: "Boxes",
+    slug: "boxes",
+    description: "Ring boxes, organizers, and travel cases to keep every piece safe.",
+    createdAt: "2026-01-01T00:00:00.000Z",
+  },
 ];

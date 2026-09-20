@@ -1,4 +1,5 @@
 import { Reveal } from "@/components/ui/Reveal";
+import { Accordion } from "@/components/ui/Accordion";
 
 const faqs = [
   {
@@ -40,16 +41,8 @@ export default function FaqPage() {
         <h1 className="mt-2 text-3xl text-ink sm:text-4xl">Frequently Asked Questions</h1>
       </div>
 
-      <Reveal className="flex flex-col divide-y divide-border border-y border-border">
-        {faqs.map((faq) => (
-          <details key={faq.question} className="group py-5">
-            <summary className="flex cursor-pointer list-none items-center justify-between text-base text-ink">
-              {faq.question}
-              <span className="ml-4 shrink-0 text-gold transition-transform group-open:rotate-45">+</span>
-            </summary>
-            <p className="mt-3 text-sm leading-relaxed text-muted">{faq.answer}</p>
-          </details>
-        ))}
+      <Reveal>
+        <Accordion items={faqs} />
       </Reveal>
     </div>
   );

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
+  House,
   Package,
   Tag,
   Boxes,
@@ -15,10 +16,11 @@ import {
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { useAdminAuthStore } from "@/store/admin-auth-store";
+import { adminLogout } from "@/lib/services/auth-service";
 
 const navItems = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Home Page", href: "/dashboard/home-page", icon: House },
   { label: "Products", href: "/dashboard/products", icon: Package },
   { label: "Categories", href: "/dashboard/categories", icon: Tag },
   { label: "Inventory", href: "/dashboard/inventory", icon: Boxes },
@@ -32,15 +34,14 @@ const navItems = [
 export function DashboardSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const logout = useAdminAuthStore((s) => s.logout);
 
   function handleLogout() {
-    logout();
+    adminLogout();
     router.push("/dashboard/login");
   }
 
   return (
-    <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-surface px-4 py-6 md:flex">
+    <aside className="hidden print:hidden! w-60 shrink-0 flex-col border-r border-border bg-surface px-4 py-6 md:flex">
       <Link href="/" className="mb-8 px-2">
         <span className="font-heading text-lg tracking-[0.15em] text-ink">AURA JEWELS</span>
         <span className="block text-[10px] tracking-[0.3em] text-gold">ADMIN</span>

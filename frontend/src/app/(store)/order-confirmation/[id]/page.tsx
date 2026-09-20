@@ -9,7 +9,15 @@ import { formatPrice } from "@/lib/utils/currency";
 
 export default function OrderConfirmationPage() {
   const params = useParams<{ id: string }>();
-  const order = useOrderById(params.id);
+  const { order, loading } = useOrderById(params.id);
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-24 text-center text-sm text-muted" role="status">
+        Loading your order...
+      </div>
+    );
+  }
 
   if (!order) {
     return (
@@ -60,6 +68,12 @@ export default function OrderConfirmationPage() {
               <span className="text-ink">&minus;{formatPrice(order.discountAmount)}</span>
             </div>
           )}
+          {order.giftBoxFee ? (
+            <div className="flex justify-between">
+              <span>Gift box</span>
+              <span className="text-ink">{formatPrice(order.giftBoxFee)}</span>
+            </div>
+          ) : null}
           <div className="flex justify-between">
             <span>Shipping</span>
             <span className="text-ink">{formatPrice(order.shipping)}</span>
@@ -72,6 +86,8 @@ export default function OrderConfirmationPage() {
         <div className="border-t border-border pt-4 text-sm text-muted">
           <p className="text-ink">Shipping to:</p>
           <p>{order.address}, {order.city}</p>
+          <p className="mt-3 text-ink">Payment:</p>
+          <p>Cash on delivery. You pay when your order arrives.</p>
         </div>
       </div>
 

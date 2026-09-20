@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils/cn";
 
 const navItems = [
   { label: "Overview", href: "/dashboard" },
+  { label: "Home Page", href: "/dashboard/home-page" },
   { label: "Products", href: "/dashboard/products" },
   { label: "Categories", href: "/dashboard/categories" },
   { label: "Inventory", href: "/dashboard/inventory" },
@@ -20,7 +21,7 @@ export function DashboardMobileNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-2 overflow-x-auto border-b border-border bg-surface px-4 py-3 md:hidden">
+    <nav className="flex gap-2 overflow-x-auto print:hidden border-b border-border bg-surface px-4 py-3 md:hidden">
       {navItems.map((item) => {
         const active = item.href === "/dashboard" ? pathname === item.href : pathname.startsWith(item.href);
         return (

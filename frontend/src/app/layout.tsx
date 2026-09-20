@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import { ToastViewport } from "@/components/ui/Toast";
 import { StoreHydration } from "@/store/StoreHydration";
@@ -18,6 +18,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Aura Jewels",
   description: "Premium jewellery, crafted for every moment.",
+};
+
+// Tells browsers the site has no dark theme, so it is never auto-darkened.
+export const viewport: Viewport = {
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

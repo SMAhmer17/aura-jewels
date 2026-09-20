@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { Minus, Plus, X } from "lucide-react";
+import { useCatalogReady } from "@/lib/services/catalog-service";
+import { CatalogLoading } from "@/components/ui/CatalogLoading";
 import { useCartLines, useShippingCost, removeFromCart, updateCartQuantity } from "@/lib/services/cart-service";
-import { ProductImagePlaceholder } from "@/components/features/product/ProductImagePlaceholder";
+import { ProductImage } from "@/components/features/product/ProductImage";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { formatPrice } from "@/lib/utils/currency";
@@ -13,6 +15,9 @@ export default function CartPage() {
   const subtotal = lines.reduce((sum, line) => sum + line.product.price * line.quantity, 0);
   const shipping = useShippingCost(subtotal);
   const total = subtotal + shipping;
+  const { ready, failed } = useCatalogReady();
+
+  if (!ready) return <CatalogLoading failed={failed} />;
 
   if (lines.length === 0) {
     return (
@@ -41,7 +46,7 @@ export default function CartPage() {
                 href={`/product/${line.product.slug}`}
                 className="h-24 w-24 shrink-0 overflow-hidden rounded-(--radius-md) border border-border"
               >
-                <ProductImagePlaceholder id={line.product.id} className="h-full w-full" />
+                <ProductImage id={line.product.id} images={line.product.images} alt={line.product.name} className="h-full w-full" />
               </Link>
               <div className="flex flex-1 flex-col justify-between">
                 <div className="flex items-start justify-between gap-3">

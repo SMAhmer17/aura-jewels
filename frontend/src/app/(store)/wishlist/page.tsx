@@ -1,5 +1,7 @@
 "use client";
 
+import { useCatalogReady } from "@/lib/services/catalog-service";
+import { CatalogLoading } from "@/components/ui/CatalogLoading";
 import { useWishlistProducts } from "@/lib/services/wishlist-service";
 import { ProductCard } from "@/components/features/product/ProductCard";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -8,6 +10,9 @@ import { Reveal } from "@/components/ui/Reveal";
 
 export default function WishlistPage() {
   const products = useWishlistProducts();
+  const { ready, failed } = useCatalogReady();
+
+  if (!ready) return <CatalogLoading failed={failed} />;
 
   if (products.length === 0) {
     return (

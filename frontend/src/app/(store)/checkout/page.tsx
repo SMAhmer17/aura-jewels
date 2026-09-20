@@ -1,24 +1,33 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useCartLines, useShippingCost } from "@/lib/services/cart-service";
 import { placeOrder } from "@/lib/services/orders-service";
-import { findActiveDiscountByCode, calculateDiscountAmount } from "@/lib/services/discounts-service";
-import type { Discount } from "@/types/discount";
+import { validateDiscountCode, type AppliedDiscount } from "@/lib/services/discounts-service";
+import { useCatalogReady } from "@/lib/services/catalog-service";
+import { errorMessage } from "@/lib/api/client";
+import { useCustomerAuthStore } from "@/store/customer-auth-store";
+import { CatalogLoading } from "@/components/ui/CatalogLoading";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { formatPrice } from "@/lib/utils/currency";
 import { toast } from "@/store/toast-store";
+import { useSettings } from "@/lib/services/settings-service";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const lines = useCartLines();
   const subtotal = lines.reduce((sum, line) => sum + line.product.price * line.quantity, 0);
   const shipping = useShippingCost(subtotal);
+  const { giftBoxPrice } = useSettings();
+  const [giftBox, setGiftBox] = useState(false);
+  const giftBoxFee = giftBox ? giftBoxPrice ?? 0 : 0;
 
+  const account = useCustomerAuthStore((s) => s.customer);
+  const { ready, failed } = useCatalogReady();
   const [form, setForm] = useState({
     customerName: "",
     email: "",
@@ -27,40 +36,61 @@ export default function CheckoutPage() {
     city: "",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [checkingPromo, setCheckingPromo] = useState(false);
   const [promoInput, setPromoInput] = useState("");
-  const [appliedDiscount, setAppliedDiscount] = useState<Discount | null>(null);
+  const [appliedDiscount, setAppliedDiscount] = useState<AppliedDiscount | null>(null);
 
-  const discountAmount = appliedDiscount ? calculateDiscountAmount(appliedDiscount, subtotal) : 0;
-  const total = Math.max(0, subtotal + shipping - discountAmount);
+  // Signed-in customers start with their account details filled in (only into fields still empty).
+  useEffect(() => {
+    if (!account) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setForm((prev) => ({
+      ...prev,
+      customerName: prev.customerName || account.name,
+      email: prev.email || account.email,
+      phone: prev.phone || (account.phone ?? ""),
+    }));
+  }, [account]);
+
+  const unavailable = lines.filter((line) => line.quantity > line.variant.stock);
+  const discountAmount = appliedDiscount ? Math.min(appliedDiscount.amount, subtotal) : 0;
+  const total = Math.max(0, subtotal + shipping + giftBoxFee - discountAmount);
 
   function update(field: keyof typeof form) {
     return (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
   }
 
-  function handleApplyPromo() {
-    const discount = findActiveDiscountByCode(promoInput);
-    if (!discount) {
-      toast({ title: "Invalid or expired code", variant: "error" });
+  async function handleApplyPromo() {
+    setCheckingPromo(true);
+    const result = await validateDiscountCode(promoInput, subtotal);
+    setCheckingPromo(false);
+    if (!result.discount) {
+      toast({ title: "Code not applied", description: result.error, variant: "error" });
       return;
     }
-    setAppliedDiscount(discount);
-    toast({ title: "Promo code applied", description: discount.code, variant: "success" });
+    setAppliedDiscount(result.discount);
+    toast({ title: "Promo code applied", description: result.discount.code, variant: "success" });
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (unavailable.length > 0 || submitting) return;
     setSubmitting(true);
-    const order = placeOrder(
-      form,
-      lines,
-      shipping,
-      appliedDiscount ? { discount: appliedDiscount, amount: discountAmount } : undefined,
-    );
-    router.push(`/order-confirmation/${order.id}`);
+    try {
+      const order = await placeOrder(form, lines, { discountCode: appliedDiscount?.code, giftBox });
+      router.push(`/order-confirmation/${order.id}`);
+    } catch (error) {
+      // Covers a size selling out mid-checkout or a promo code that stopped working; the message is written for customers.
+      toast({ title: "We couldn't place your order", description: errorMessage(error), variant: "error" });
+      setSubmitting(false);
+    }
   }
 
-  if (lines.length === 0) {
+  if (!ready) return <CatalogLoading failed={failed} />;
+
+  // After a successful order the cart empties, so keep showing the spinner state instead of "cart is empty" while navigating.
+  if (lines.length === 0 && !submitting) {
     return (
       <EmptyState
         className="mx-auto my-16 max-w-lg"
@@ -95,12 +125,32 @@ export default function CheckoutPage() {
           <Input label="Address" required value={form.address} onChange={update("address")} />
           <Input label="City" required value={form.city} onChange={update("city")} />
 
+          <label className="flex cursor-pointer items-start gap-3 rounded-(--radius-md) border border-border p-4">
+            <input
+              type="checkbox"
+              checked={giftBox}
+              onChange={(e) => setGiftBox(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-gold"
+            />
+            <span className="flex flex-col gap-0.5">
+              <span className="text-sm text-ink">Add a gift box ({formatPrice(giftBoxPrice ?? 0)})</span>
+              <span className="text-xs text-muted">Your order arrives in a jewellery box, ready to give.</span>
+            </span>
+          </label>
+
           <div className="mt-2 rounded-(--radius-md) border border-dashed border-border p-4 text-xs text-muted">
-            Payment collection isn&apos;t enabled yet, so placing this order will not charge you.
-            This is a demo checkout flow.
+            Payment is cash on delivery. You pay when your order arrives, and nothing is charged online.
           </div>
 
-          <Button type="submit" variant="primary" size="lg" disabled={submitting} className="mt-2">
+          {unavailable.length > 0 && (
+            <div role="alert" className="rounded-(--radius-md) border border-error/30 bg-error/10 p-4 text-sm text-error">
+              Some items are no longer available in the quantity you chose:{" "}
+              {unavailable.map((l) => `${l.product.name} (${l.variant.size}, ${l.variant.stock} left)`).join(", ")}.
+              Please update your cart.
+            </div>
+          )}
+
+          <Button type="submit" variant="primary" size="lg" disabled={submitting || unavailable.length > 0} className="mt-2">
             {submitting ? "Placing Order..." : `Place Order (${formatPrice(total)})`}
           </Button>
         </form>
@@ -143,8 +193,8 @@ export default function CheckoutPage() {
                 onChange={(e) => setPromoInput(e.target.value)}
                 className="h-10"
               />
-              <Button type="button" variant="outline" size="sm" onClick={handleApplyPromo}>
-                Apply
+              <Button type="button" variant="outline" size="sm" onClick={handleApplyPromo} disabled={checkingPromo || !promoInput.trim()}>
+                {checkingPromo ? "Checking" : "Apply"}
               </Button>
             </div>
           )}
@@ -158,6 +208,12 @@ export default function CheckoutPage() {
               <div className="flex justify-between">
                 <span>Discount</span>
                 <span className="text-ink">&minus;{formatPrice(discountAmount)}</span>
+              </div>
+            )}
+            {giftBox && (
+              <div className="flex justify-between">
+                <span>Gift box</span>
+                <span className="text-ink">{formatPrice(giftBoxFee)}</span>
               </div>
             )}
             <div className="flex justify-between">

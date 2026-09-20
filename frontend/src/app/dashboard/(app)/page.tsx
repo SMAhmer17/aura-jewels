@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useAllProducts, useCategories } from "@/lib/services/catalog-service";
 import { useOrders } from "@/lib/services/orders-service";
+import { useDiscounts } from "@/lib/services/discounts-service";
+import { useSettings } from "@/lib/services/settings-service";
+import { countsAsSale } from "@/lib/utils/order-status";
+import { buildSummary, type SummaryItem, type SummaryTone } from "@/lib/utils/dashboard-summary";
+import { cn } from "@/lib/utils/cn";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { formatPrice } from "@/lib/utils/currency";
@@ -19,16 +24,52 @@ function StatCard({ label, value, href }: { label: string; value: string; href?:
   return href ? <Link href={href}>{content}</Link> : content;
 }
 
+const dotClass: Record<SummaryTone, string> = {
+  action: "bg-gold",
+  info: "bg-muted",
+  ok: "bg-success",
+};
+
+function SummaryList({ items }: { items: SummaryItem[] }) {
+  return (
+    <ul className="flex flex-col gap-3">
+      {items.map((item) => {
+        const text = <span className="text-sm leading-relaxed text-ink">{item.text}</span>;
+        return (
+          <li key={item.id} className="flex items-start gap-3">
+            <span aria-hidden className={cn("mt-2 h-1.5 w-1.5 shrink-0 rounded-full", dotClass[item.tone])} />
+            {item.href ? (
+              <Link href={item.href} className="underline-offset-4 hover:underline">
+                {text}
+              </Link>
+            ) : (
+              text
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export default function DashboardOverviewPage() {
   const products = useAllProducts();
   const categories = useCategories();
   const orders = useOrders();
+  const discounts = useDiscounts();
+  const { lowStockThreshold } = useSettings();
+  const threshold = lowStockThreshold ?? 5;
+
+  const summary = buildSummary({ orders, products, discounts, lowStockThreshold: threshold });
+  const needsAttention = summary.filter((i) => i.tone !== "info");
+  const status = summary.filter((i) => i.tone === "info");
+  const actionCount = summary.filter((i) => i.tone === "action").length;
 
   const lowStockVariants = products.flatMap((p) =>
-    p.variants.filter((v) => v.stock > 0 && v.stock <= 5).map((v) => ({ product: p, variant: v })),
+    p.variants.filter((v) => v.stock > 0 && v.stock <= threshold).map((v) => ({ product: p, variant: v })),
   );
   const outOfStockCount = products.filter((p) => p.variants.every((v) => v.stock === 0)).length;
-  const revenue = orders.reduce((sum, o) => sum + o.total, 0);
+  const revenue = orders.filter(countsAsSale).reduce((sum, o) => sum + o.total, 0);
   const pendingOrders = orders.filter((o) => o.status === "pending");
 
   return (
@@ -37,6 +78,27 @@ export default function DashboardOverviewPage() {
         <h1 className="text-2xl text-ink sm:text-3xl">Dashboard</h1>
         <p className="text-sm text-muted">An overview of your store.</p>
       </div>
+
+      <Card>
+        <CardContent className="flex flex-col gap-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg text-ink">Store Summary</h2>
+            <Badge variant={actionCount > 0 ? "gold" : "success"}>
+              {actionCount > 0 ? `${actionCount} to do` : "All clear"}
+            </Badge>
+          </div>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            <div className="flex flex-col gap-3">
+              <h3 className="font-body text-xs font-medium uppercase tracking-wide text-muted">Needs your attention</h3>
+              <SummaryList items={needsAttention} />
+            </div>
+            <div className="flex flex-col gap-3">
+              <h3 className="font-body text-xs font-medium uppercase tracking-wide text-muted">Current status</h3>
+              <SummaryList items={status} />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Total Products" value={String(products.length)} href="/dashboard/products" />

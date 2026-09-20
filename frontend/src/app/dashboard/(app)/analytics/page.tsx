@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useOrders } from "@/lib/services/orders-service";
 import type { OrderStatus } from "@/types/order";
+import { countsAsSale } from "@/lib/utils/order-status";
+import { RANGE_OPTIONS, inRange, type RangeId } from "@/lib/utils/date-range";
+import { FilterPills } from "@/components/features/dashboard/DashboardFilters";
 import { Card, CardContent } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatPrice } from "@/lib/utils/currency";
@@ -16,7 +19,11 @@ const statusColor: Record<OrderStatus, string> = {
 };
 
 export default function AnalyticsPage() {
-  const orders = useOrders();
+  const allOrders = useOrders();
+  const [range, setRange] = useState<RangeId>("all");
+  const rangeOrders = useMemo(() => allOrders.filter((o) => inRange(o.createdAt, range)), [allOrders, range]);
+  // Sales exclude cancelled orders; the status breakdown below still shows them.
+  const orders = useMemo(() => rangeOrders.filter(countsAsSale), [rangeOrders]);
 
   const revenueByDay = useMemo(() => {
     const map = new Map<string, number>();
@@ -48,9 +55,9 @@ export default function AnalyticsPage() {
       delivered: 0,
       cancelled: 0,
     };
-    for (const order of orders) counts[order.status] += 1;
+    for (const order of rangeOrders) counts[order.status] += 1;
     return counts;
-  }, [orders]);
+  }, [rangeOrders]);
 
   const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
   const avgOrderValue = orders.length ? totalRevenue / orders.length : 0;
@@ -58,7 +65,7 @@ export default function AnalyticsPage() {
   const maxQuantity = Math.max(1, ...topProducts.map((p) => p.quantity));
   const maxStatusCount = Math.max(1, ...Object.values(statusCounts));
 
-  if (orders.length === 0) {
+  if (allOrders.length === 0) {
     return (
       <div className="flex flex-col gap-6">
         <h1 className="text-2xl text-ink sm:text-3xl">Analytics</h1>
@@ -72,10 +79,17 @@ export default function AnalyticsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-2xl text-ink sm:text-3xl">Analytics</h1>
-        <p className="text-sm text-muted">Performance at a glance.</p>
+      <div className="flex flex-col gap-4">
+        <div>
+          <h1 className="text-2xl text-ink sm:text-3xl">Analytics</h1>
+          <p className="text-sm text-muted">Sales exclude cancelled orders.</p>
+        </div>
+        <FilterPills label="Date range" value={range} onChange={setRange} options={RANGE_OPTIONS} />
       </div>
+
+      {orders.length === 0 && rangeOrders.length === 0 && (
+        <EmptyState title="No orders in this period" description="Try a wider date range." />
+      )}
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Card>

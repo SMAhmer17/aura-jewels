@@ -2,7 +2,7 @@
 
 # Aura Jewels
 
-Premium jewellery e-commerce site. Black-and-gold luxury visual identity. Next.js (App Router) + TypeScript + Tailwind v4. Phase 1 is frontend-only: no Supabase, no auth, no real payments — a shared client-side store (Zustand + localStorage) stands in for the backend until Phase 2, behind a service-layer boundary so the swap doesn't touch components.
+Premium jewellery e-commerce site. Black-and-gold luxury visual identity. Next.js (App Router) + TypeScript + Tailwind v4. All data comes from the Aura Jewels REST API in `../backend` (`NEXT_PUBLIC_API_URL`); the frontend never talks to Supabase directly. Cash on delivery only, guest checkout, optional customer accounts, one admin.
 
 Market: Pakistan, prices in PKR (format as `Rs. 45,000`).
 
@@ -40,10 +40,13 @@ Gold should cover roughly 5–10% of any given screen (CTAs, borders, icons, key
 
 ## Data architecture
 
-- `src/lib/mock-data/` — static seed data (products, categories, orders, customers).
-- `src/lib/services/` — the only layer components are allowed to call for data (`getProducts()`, `createCategory()`, etc.). Today it reads/writes the Zustand+localStorage store; in Phase 2 the same function signatures will call Supabase instead.
-- `src/store/` — Zustand stores (shared client-side state acting as the Phase 1 "backend": categories/products/cart/wishlist/account/toasts). Dashboard CRUD on categories/products writes here, and the storefront reads from the same store, which is what makes "add a category in the dashboard → it appears in nav/shop instantly" work without a real backend. Note: state is per-browser (localStorage), not synced across devices until Supabase lands.
-- `src/types/` — shared TypeScript interfaces, shaped to map cleanly onto future Supabase tables (string `id`, explicit foreign keys, ISO timestamps).
+- `src/lib/api/` — `client.ts` is the only place that calls `fetch`: it adds the base URL and the right sign-in token (admin or customer), turns error responses into `ApiError` with a customer-friendly message, and signs a session out on 401. `mappers.ts` converts API JSON (nulls, ISO dates) to the UI types.
+- `src/lib/services/` — the only layer components call for data (`useProducts()`, `addProduct()`, `placeOrder()`, and so on). Reads come from an in-memory copy of what the API returned; writes are `async`, go to the API first, then refresh that copy. Components must `await` writes and show `errorMessage(error)` on failure (see the dashboard pages for the pattern).
+- `src/store/` — Zustand stores. Data stores (catalog, orders, discounts, reviews, settings, home content) are plain in-memory caches with no persistence; they are filled by `StoreHydration` (public data, on app open) and `AuthGuard` (dashboard data, after admin sign-in). Only the cart, wishlist, and the two sign-in sessions persist to localStorage (`skipHydration`, rehydrated in `StoreHydration`).
+- Storefront pages that depend on the catalog must check `useCatalogReady()` and render `<CatalogLoading />` first, so a slow load is never mistaken for "not found" or "cart is empty".
+- The server is the authority on prices, stock, shipping, and discounts. The checkout sends only sizes and quantities; totals shown in the browser are previews.
+- `src/lib/mock-data/` — no longer used at runtime except `home.ts` (default home page content, used as a fallback and by "reset to defaults"). The other files feed the backend seed script (`backend/scripts/generate-seed-data.mjs`), so keep them.
+- `src/types/` — shared TypeScript interfaces matching the API responses.
 
 ## Commands
 
