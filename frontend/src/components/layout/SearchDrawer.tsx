@@ -5,11 +5,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { Drawer } from "@/components/ui/Drawer";
 import { ProductImage } from "@/components/features/product/ProductImage";
-import { useProducts } from "@/lib/services/catalog-service";
+import { useCategories, useFeaturedProducts, useProducts } from "@/lib/services/catalog-service";
 import { formatPrice } from "@/lib/utils/currency";
 
 function SearchPanel({ onClose }: { onClose: () => void }) {
   const products = useProducts();
+  const categories = useCategories();
+  const featured = useFeaturedProducts();
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -42,6 +44,48 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
           />
         </div>
       </div>
+
+      {!term && (
+        <div className="flex flex-col gap-8 px-6 py-8">
+          {categories.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted">Browse by category</p>
+              <div className="flex flex-wrap gap-2">
+                {categories.map((category) => (
+                  <Link
+                    key={category.id}
+                    href={`/shop/${category.slug}`}
+                    onClick={onClose}
+                    className="inline-flex h-10 items-center rounded-(--radius-sm) border border-ink/15 bg-white/60 px-4 text-sm text-ink transition-colors hover:border-gold hover:bg-gold/10"
+                  >
+                    {category.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+          {featured.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted">Popular right now</p>
+              <ul className="flex flex-col divide-y divide-ink/10 border-y border-ink/10">
+                {featured.slice(0, 4).map((product) => (
+                  <li key={product.id}>
+                    <Link href={`/product/${product.slug}`} onClick={onClose} className="flex items-center gap-4 py-3 transition-colors hover:text-gold">
+                      <div className="h-14 w-14 shrink-0 overflow-hidden rounded-(--radius-sm) border border-border">
+                        <ProductImage id={product.id} images={product.images} alt="" className="h-full w-full" />
+                      </div>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm text-ink">{product.name}</span>
+                        <span className="text-xs text-muted">{formatPrice(product.price)}</span>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
       {term && results.length === 0 && (
         <p className="px-6 py-10 text-center text-sm text-muted">

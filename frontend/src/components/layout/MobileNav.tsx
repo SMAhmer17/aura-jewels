@@ -28,7 +28,7 @@ export function MobileNav({ open, onClose, categories }: MobileNavProps) {
       onClick={(e) => {
         if (e.target === dialogRef.current) onClose();
       }}
-      className="m-0 ml-auto h-dvh max-h-dvh w-full max-w-xs border-0 border-l border-white/50 bg-ivory/40 p-0 shadow-(--shadow-elevated) backdrop-blur-lg backdrop-saturate-150 backdrop:bg-ink/20 open:animate-[drawer-in_250ms_ease-out] motion-reduce:open:animate-none"
+      className="m-0 ml-auto h-dvh max-h-dvh w-full max-w-xs border-0 border-l border-ink/10 bg-ivory/95 p-0 shadow-(--shadow-elevated) backdrop-blur-xl backdrop-saturate-150 backdrop:bg-ink/35 open:animate-[drawer-in_250ms_ease-out] motion-reduce:open:animate-none"
     >
       <div className="flex items-center justify-between border-b border-ink/10 px-6 py-5">
         <span className="text-lg text-ink">Menu</span>
@@ -60,6 +60,9 @@ export function MobileNav({ open, onClose, categories }: MobileNavProps) {
         </Link>
         <Link href="/about" onClick={onClose} className="border-b border-ink/10 py-4 text-base text-ink">
           About
+        </Link>
+        <Link href="/track-order" onClick={onClose} className="border-b border-ink/10 py-4 text-base text-ink">
+          Track Your Order
         </Link>
         <Link href="/contact" onClick={onClose} className="py-4 text-base text-ink">
           Contact

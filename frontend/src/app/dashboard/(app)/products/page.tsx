@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, Pencil, Trash2, Star, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import {
   useAllProducts,
   useCategories,
@@ -24,7 +24,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } fro
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatPrice } from "@/lib/utils/currency";
 import { slugify } from "@/lib/utils/slugify";
-import { uploadProductImage } from "@/lib/services/uploads-service";
+import { ProductImagePicker } from "@/components/features/dashboard/ProductImagePicker";
+import { ProductImagesPanel } from "@/components/features/dashboard/ProductImagesPanel";
+import { Drawer } from "@/components/ui/Drawer";
 import { errorMessage } from "@/lib/api/client";
 import { toast } from "@/store/toast-store";
 
@@ -82,6 +84,7 @@ export default function ProductsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [imagesTarget, setImagesTarget] = useState<Product | null>(null);
 
   const blankForm = (): FormState => ({
     name: "",
@@ -97,7 +100,6 @@ export default function ProductsPage() {
     variants: [{ id: crypto.randomUUID(), size: "One Size", stock: "10" }],
   });
   const [form, setForm] = useState<FormState>(blankForm);
-  const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -155,47 +157,6 @@ export default function ProductsPage() {
       variants: product.variants.map((v) => ({ id: v.id, size: v.size, stock: String(v.stock), sku: v.sku })),
     });
     setModalOpen(true);
-  }
-
-  async function handleFiles(files: FileList | null) {
-    if (!files || files.length === 0) return;
-    const room = MAX_IMAGES - form.images.length;
-    const picked = Array.from(files).filter((f) => f.type.startsWith("image/")).slice(0, Math.max(0, room));
-    if (files.length > picked.length) {
-      toast({ title: `Up to ${MAX_IMAGES} images per product`, description: "Extra files were skipped." });
-    }
-    if (picked.length === 0) return;
-    setUploading(true);
-    try {
-      const urls = await Promise.all(picked.map((f) => uploadProductImage(f)));
-      setForm((prev) => ({ ...prev, images: [...prev.images, ...urls].slice(0, MAX_IMAGES) }));
-    } catch (error) {
-      toast({ title: "Could not upload the images", description: errorMessage(error, "Check the files and try again."), variant: "error" });
-    } finally {
-      setUploading(false);
-    }
-  }
-
-  function addImageUrl() {
-    const url = imageUrl.trim();
-    if (!/^(https?:\/\/|\/)/.test(url)) {
-      toast({ title: "Enter a full image link starting with https://", variant: "error" });
-      return;
-    }
-    if (form.images.length >= MAX_IMAGES) {
-      toast({ title: `Up to ${MAX_IMAGES} images per product` });
-      return;
-    }
-    setForm((prev) => ({ ...prev, images: [...prev.images, url] }));
-    setImageUrl("");
-  }
-
-  function makeCover(index: number) {
-    setForm((prev) => {
-      const images = [...prev.images];
-      const [picked] = images.splice(index, 1);
-      return { ...prev, images: [picked, ...images] };
-    });
   }
 
   function updateVariant(id: string, change: Partial<VariantRow>) {
@@ -363,9 +324,15 @@ export default function ProductsPage() {
                   <TableRow key={product.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-(--radius-sm) border border-border">
+                        <button
+                          type="button"
+                          onClick={() => setImagesTarget(product)}
+                          aria-label={`View and manage images for ${product.name}`}
+                          title="View images"
+                          className="h-10 w-10 shrink-0 cursor-zoom-in overflow-hidden rounded-(--radius-sm) border border-border transition-shadow hover:ring-2 hover:ring-gold focus-visible:ring-2 focus-visible:ring-gold"
+                        >
                           <ProductImage id={product.id} images={product.images} alt="" className="h-full w-full" />
-                        </div>
+                        </button>
                         <span className="flex items-center gap-1.5">
                           {product.name}
                           {product.featured && <Star size={13} className="fill-gold text-gold" aria-label="Featured" />}
@@ -408,10 +375,16 @@ export default function ProductsPage() {
         </>
       )}
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editingProduct ? "Edit Product" : "Add Product"} className="max-w-2xl">
-        <form onSubmit={handleSubmit} className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto pr-1">
+      <Drawer open={!!imagesTarget} onClose={() => setImagesTarget(null)} title="Product images" className="max-w-lg bg-ivory backdrop-blur-none">
+        {imagesTarget && <ProductImagesPanel key={imagesTarget.id} product={imagesTarget} min={MIN_IMAGES} max={MAX_IMAGES} onClose={() => setImagesTarget(null)} />}
+      </Drawer>
+
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editingProduct ? "Edit Product" : "Add Product"} className="max-w-2xl overflow-hidden open:flex open:max-h-[calc(100dvh-2rem)] open:flex-col">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col gap-4">
+          {/* Only this area scrolls, so the title above and the buttons below always stay in view. */}
+          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pr-1 *:shrink-0">
           <Input
-            label="Name"
+            label="Name" placeholder="e.g. Gold Plated Ring"
             required
             value={form.name}
             onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value, slug: editingProduct ? prev.slug : slugify(e.target.value) }))}
@@ -425,9 +398,9 @@ export default function ProductsPage() {
             </select>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Input label="Price (PKR)" type="number" required min="0" value={form.price} onChange={(e) => setForm((prev) => ({ ...prev, price: e.target.value }))} />
+            <Input label="Price (PKR)" placeholder="e.g. 4500" type="number" required min="0" value={form.price} onChange={(e) => setForm((prev) => ({ ...prev, price: e.target.value }))} />
             <Input
-              label="Original price (optional)"
+              label="Original price (optional)" placeholder="Leave empty if not on sale"
               type="number"
               min="0"
               value={form.compareAtPrice}
@@ -435,74 +408,16 @@ export default function ProductsPage() {
               hint="Higher than the price to run a sale. Shows a Sale badge and strikethrough."
             />
           </div>
-          <Input label="Material" value={form.material} onChange={(e) => setForm((prev) => ({ ...prev, material: e.target.value }))} />
-          <Textarea label="Description" rows={3} value={form.description} onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))} />
+          <Input label="Material" placeholder="e.g. Gold plated brass" value={form.material} onChange={(e) => setForm((prev) => ({ ...prev, material: e.target.value }))} />
+          <Textarea label="Description" placeholder="Describe the piece, its finish and how to care for it" rows={3} value={form.description} onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))} />
 
-          <div className="flex flex-col gap-3 rounded-(--radius-md) border border-border p-4">
-            <div>
-              <span className="text-sm font-medium text-ink">Product images</span>
-              <p className="text-xs text-muted">
-                The first image is the cover (thumbnail) shown on cards and lists. At least {MIN_IMAGES} images are required, up to {MAX_IMAGES}. Photos are resized and uploaded when you choose them.
-              </p>
-            </div>
-            {form.images.length > 0 && (
-              <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-                {form.images.map((src, i) => (
-                  <li key={`${i}-${src.slice(-24)}`} className="flex flex-col gap-1.5">
-                    <div className={`relative aspect-square overflow-hidden rounded-(--radius-sm) border ${i === 0 ? "border-gold ring-1 ring-gold" : "border-border"}`}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={src} alt={`Product image ${i + 1}`} className="h-full w-full object-cover" />
-                      {i === 0 && <Badge variant="gold" className="absolute left-1 top-1 bg-ivory">Cover</Badge>}
-                    </div>
-                    <div className="flex items-center justify-between text-xs">
-                      {i === 0 ? (
-                        <span className="text-muted">Thumbnail</span>
-                      ) : (
-                        <button type="button" onClick={() => makeCover(i)} className="text-ink underline underline-offset-4 hover:text-gold">
-                          Set as cover
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        aria-label={`Remove image ${i + 1}`}
-                        onClick={() => setForm((prev) => ({ ...prev, images: prev.images.filter((_, idx) => idx !== i) }))}
-                        className="text-muted hover:text-error"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <div className="flex flex-wrap items-center gap-3">
-              <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-(--radius-sm) border border-gold px-4 text-sm text-ink transition-colors hover:bg-gold/10 focus-within:ring-2 focus-within:ring-gold">
-                <Upload size={14} />
-                {uploading ? "Uploading..." : "Upload images"}
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  disabled={uploading || form.images.length >= MAX_IMAGES}
-                  className="sr-only"
-                  data-testid="product-image-input"
-                  onChange={(e) => {
-                    handleFiles(e.target.files);
-                    e.target.value = "";
-                  }}
-                />
-              </label>
-              <span className={`text-xs ${form.images.length < MIN_IMAGES ? "text-error" : "text-muted"}`}>
-                {form.images.length} of {MAX_IMAGES} added (minimum {MIN_IMAGES})
-              </span>
-            </div>
-            <div className="flex items-end gap-2">
-              <div className="flex-1">
-                <Input label="Or add an image link" placeholder="https://" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
-              </div>
-              <Button type="button" variant="outline" size="md" onClick={addImageUrl}>Add</Button>
-            </div>
-          </div>
+          <ProductImagePicker
+            images={form.images}
+            onChange={(update) => setForm((prev) => ({ ...prev, images: update(prev.images) }))}
+            min={MIN_IMAGES}
+            max={MAX_IMAGES}
+            onBusyChange={setUploading}
+          />
 
           <div className="flex flex-col gap-3 rounded-(--radius-md) border border-border p-4">
             <div>
@@ -512,10 +427,10 @@ export default function ProductsPage() {
             {form.variants.map((row) => (
               <div key={row.id} className="flex items-end gap-3">
                 <div className="flex-1">
-                  <Input label="Size or option" value={row.size} onChange={(e) => updateVariant(row.id, { size: e.target.value })} />
+                  <Input label="Size or option" placeholder="e.g. 7, Small or Black" value={row.size} onChange={(e) => updateVariant(row.id, { size: e.target.value })} />
                 </div>
                 <div className="w-28">
-                  <Input label="Stock" type="number" min="0" value={row.stock} onChange={(e) => updateVariant(row.id, { stock: e.target.value })} />
+                  <Input label="Stock" placeholder="e.g. 10" type="number" min="0" value={row.stock} onChange={(e) => updateVariant(row.id, { stock: e.target.value })} />
                 </div>
                 <button
                   type="button"
@@ -549,7 +464,9 @@ export default function ProductsPage() {
             </label>
           </div>
 
-          <div className="mt-2 flex justify-end gap-3">
+          </div>
+
+          <div className="flex shrink-0 justify-end gap-3 border-t border-border pt-4">
             <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>Cancel</Button>
             <Button type="submit" disabled={saving || uploading}>{saving ? "Saving..." : editingProduct ? "Save Changes" : "Add Product"}</Button>
           </div>

@@ -3,8 +3,9 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-const CONTENT_TYPES: Record<string, string> = { jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp' };
-const MAX_BYTES = 5 * 1024 * 1024;
+const CONTENT_TYPES: Record<string, string> = { jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp', mp4: 'video/mp4', webm: 'video/webm' };
+// Largest file the bucket accepts (short videos). Images are held to 5 MB by the upload endpoint itself.
+const MAX_BYTES = 25 * 1024 * 1024;
 
 /**
  * Where uploaded images live.

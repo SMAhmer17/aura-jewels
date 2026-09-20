@@ -33,7 +33,7 @@ export function Drawer({ open, onClose, title, children, className }: DrawerProp
       }}
       aria-label={title}
       className={cn(
-        "m-0 ml-auto h-dvh max-h-dvh w-full max-w-md border-0 border-l border-white/50 bg-ivory/40 p-0 shadow-(--shadow-elevated) backdrop-blur-lg backdrop-saturate-150 backdrop:bg-ink/20 open:animate-[drawer-in_250ms_ease-out] motion-reduce:open:animate-none",
+        "m-0 ml-auto h-dvh max-h-dvh w-full max-w-md border-0 border-l border-ink/10 bg-ivory/95 p-0 shadow-(--shadow-elevated) backdrop-blur-xl backdrop-saturate-150 backdrop:bg-ink/35 open:animate-[drawer-in_250ms_ease-out] motion-reduce:open:animate-none",
         className,
       )}
     >

@@ -5,6 +5,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { CatalogModule } from './catalog/catalog.module';
+import { ContactModule } from './contact/contact.module';
 import { validateEnv } from './config/env.validation';
 import { DiscountsModule } from './discounts/discounts.module';
 import { HealthModule } from './health/health.module';
@@ -29,6 +30,7 @@ import { UploadsModule } from './uploads/uploads.module';
     OrdersModule,
     DiscountsModule,
     ReviewsModule,
+    ContactModule,
     SettingsModule,
     HomeContentModule,
     UploadsModule,

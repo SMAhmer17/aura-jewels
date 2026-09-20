@@ -17,7 +17,7 @@ export function toOrder(o: OrderFull, admin = false) {
     phone: o.phone,
     address: o.address,
     city: o.city,
-    items: o.items.map((i) => ({ productId: i.productId, variantId: i.variantId, name: i.name, size: i.size, price: i.price, quantity: i.quantity })),
+    items: o.items.map((i) => ({ productId: i.productId, variantId: i.variantId, name: i.name, size: i.size, price: i.price, quantity: i.quantity, image: i.image })),
     subtotal: o.subtotal,
     shipping: o.shipping,
     discountCode: o.discountCode,
@@ -114,6 +114,7 @@ export class OrdersService {
               size: v.size,
               price: v.product.price,
               quantity: wanted.get(v.id) as number,
+              image: v.product.images[0] ?? null,
             })),
           },
           events: { create: { status: 'pending' } },
@@ -121,6 +122,31 @@ export class OrdersService {
       });
       return { id: order.id, orderNumber: formatOrderNumber(order.orderNo, order.createdAt), total: order.total };
     });
+  }
+
+  /**
+   * Public order tracking by order number (e.g. AJ-2026-1001). Order numbers are sequential, so this returns the
+   * status and what was ordered but never the customer's name, phone, email or address.
+   */
+  async track(orderNumber: string) {
+    const match = /^AJ-(\d{4})-(\d{4,9})$/.exec(orderNumber.trim().toUpperCase());
+    const orderNo = match ? Number(match[2]) - 1000 : 0;
+    const order = orderNo > 0 ? await this.prisma.order.findUnique({ where: { orderNo }, include }) : null;
+    if (!order || formatOrderNumber(order.orderNo, order.createdAt) !== orderNumber.trim().toUpperCase()) return null;
+    return {
+      orderNumber: formatOrderNumber(order.orderNo, order.createdAt),
+      status: order.status,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+      createdAt: order.createdAt,
+      timeline: order.events.map((e) => ({ status: e.status, at: e.createdAt })),
+      items: order.items.map((i) => ({ name: i.name, size: i.size, quantity: i.quantity, price: i.price, image: i.image })),
+      subtotal: order.subtotal,
+      shipping: order.shipping,
+      discountAmount: order.discountAmount,
+      giftBoxFee: order.giftBoxFee,
+      total: order.total,
+    };
   }
 
   /** Guests have no login, so the confirmation page uses the order's unguessable id. */

@@ -222,7 +222,7 @@ export default function DiscountsPage() {
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? "Edit Discount" : "Add Discount"} className="max-w-lg">
         <form onSubmit={handleSubmit} className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto pr-1">
-          <Input label="Code" required value={form.code} onChange={(e) => setForm((prev) => ({ ...prev, code: e.target.value.toUpperCase() }))} />
+          <Input label="Code" placeholder="e.g. WELCOME10" required value={form.code} onChange={(e) => setForm((prev) => ({ ...prev, code: e.target.value.toUpperCase() }))} />
           <div className="flex flex-col gap-1.5">
             <label htmlFor="discount-type" className="text-sm font-medium text-ink">Type</label>
             <select
@@ -235,13 +235,13 @@ export default function DiscountsPage() {
               <option value="fixed">Fixed amount off (PKR)</option>
             </select>
           </div>
-          <Input label={form.type === "percentage" ? "Percentage (%)" : "Amount (PKR)"} type="number" required min="0" value={form.value} onChange={(e) => setForm((prev) => ({ ...prev, value: e.target.value }))} />
-          <Input label="Minimum order (PKR, optional)" type="number" min="0" value={form.minOrderAmount} onChange={(e) => setForm((prev) => ({ ...prev, minOrderAmount: e.target.value }))} hint="The order subtotal must reach this amount" />
+          <Input label={form.type === "percentage" ? "Percentage (%)" : "Amount (PKR)"} type="number" required min="0" placeholder={form.type === "percentage" ? "e.g. 10" : "e.g. 500"} value={form.value} onChange={(e) => setForm((prev) => ({ ...prev, value: e.target.value }))} />
+          <Input label="Minimum order (PKR, optional)" placeholder="e.g. 5000" type="number" min="0" value={form.minOrderAmount} onChange={(e) => setForm((prev) => ({ ...prev, minOrderAmount: e.target.value }))} hint="The order subtotal must reach this amount" />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input label="Starts (optional)" type="date" value={form.startsAt} onChange={(e) => setForm((prev) => ({ ...prev, startsAt: e.target.value }))} />
             <Input label="Ends (optional)" type="date" value={form.endsAt} onChange={(e) => setForm((prev) => ({ ...prev, endsAt: e.target.value }))} />
           </div>
-          <Input label="Usage limit (optional)" type="number" min="0" value={form.usageLimit} onChange={(e) => setForm((prev) => ({ ...prev, usageLimit: e.target.value }))} hint="Leave blank for unlimited uses" />
+          <Input label="Usage limit (optional)" placeholder="Leave empty for unlimited" type="number" min="0" value={form.usageLimit} onChange={(e) => setForm((prev) => ({ ...prev, usageLimit: e.target.value }))} hint="Leave blank for unlimited uses" />
           <label className="flex items-center gap-2 text-sm text-ink">
             <input type="checkbox" checked={form.active} onChange={(e) => setForm((prev) => ({ ...prev, active: e.target.checked }))} className="h-4 w-4 accent-gold" />
             Active

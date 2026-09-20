@@ -26,4 +26,6 @@ How it fits together: the frontend (Vercel) calls the API (Railway) using `NEXT_
 
 To run everything locally: start the API (`npm --prefix backend run start:dev`, port 4000), then the frontend (port 3000). The frontend reads `frontend/.env.local` (see `frontend/.env.example`).
 
-Status: backend built and tested (59 tests). Frontend is connected to the API. Not yet done: real Supabase project and Railway deploy (needs the owner's accounts), emails, and other payment methods.
+Customer care: guests follow an order at `/track-order` with just the order number (status only, no personal details); signed-in customers see their orders on `/account`; the contact form saves messages to a dashboard inbox; product reviews collect name, private email and rating, with a Verified buyer badge and admin hide/delete.
+
+Status: backend built and tested (70 tests). Frontend is connected to the API. Not yet done: real Supabase project and Railway deploy (needs the owner's accounts), emails, and other payment methods.

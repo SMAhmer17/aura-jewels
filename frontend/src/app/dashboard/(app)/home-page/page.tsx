@@ -5,7 +5,8 @@ import Link from "next/link";
 import { ArrowDown, ArrowUp, ExternalLink, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { resetHomeContent, saveHomeContent, useHomeContent } from "@/lib/services/home-content-service";
 import { updateProduct, useAllProducts } from "@/lib/services/catalog-service";
-import { HOME_SECTION_LABELS, type HomeContent } from "@/types/home-content";
+import { HOME_SECTION_LABELS, type HomeContent, type SocialPost } from "@/types/home-content";
+import { SocialPostMediaField } from "@/components/features/dashboard/SocialPostMediaField";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -132,12 +133,12 @@ export default function HomePageEditor() {
       </div>
 
       <Block title="Hero" description="The large banner at the top of the page.">
-        <Input label="Small heading above" value={draft.hero.eyebrow} onChange={(e) => patch((d) => ({ ...d, hero: { ...d.hero, eyebrow: e.target.value } }))} />
-        <Input label="Main heading" value={draft.hero.heading} onChange={(e) => patch((d) => ({ ...d, hero: { ...d.hero, heading: e.target.value } }))} />
-        <Textarea label="Description" value={draft.hero.body} onChange={(e) => patch((d) => ({ ...d, hero: { ...d.hero, body: e.target.value } }))} />
+        <Input label="Small heading above" placeholder="Short text shown above the heading" value={draft.hero.eyebrow} onChange={(e) => patch((d) => ({ ...d, hero: { ...d.hero, eyebrow: e.target.value } }))} />
+        <Input label="Main heading" placeholder="Enter the main heading" value={draft.hero.heading} onChange={(e) => patch((d) => ({ ...d, hero: { ...d.hero, heading: e.target.value } }))} />
+        <Textarea label="Description" placeholder="Enter a short description" value={draft.hero.body} onChange={(e) => patch((d) => ({ ...d, hero: { ...d.hero, body: e.target.value } }))} />
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <Input label="Button text" value={draft.hero.ctaLabel} onChange={(e) => patch((d) => ({ ...d, hero: { ...d.hero, ctaLabel: e.target.value } }))} hint="Leave empty to hide the button" />
-          <Input label="Button link" value={draft.hero.ctaHref} onChange={(e) => patch((d) => ({ ...d, hero: { ...d.hero, ctaHref: e.target.value } }))} hint="For example /shop or /shop/rings" />
+          <Input label="Button text" placeholder="e.g. Shop the Collection" value={draft.hero.ctaLabel} onChange={(e) => patch((d) => ({ ...d, hero: { ...d.hero, ctaLabel: e.target.value } }))} hint="Leave empty to hide the button" />
+          <Input label="Button link" placeholder="e.g. /shop" value={draft.hero.ctaHref} onChange={(e) => patch((d) => ({ ...d, hero: { ...d.hero, ctaHref: e.target.value } }))} hint="For example /shop or /shop/rings" />
         </div>
       </Block>
 
@@ -169,8 +170,8 @@ export default function HomePageEditor() {
           ))}
         </ul>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <Input label="Categories heading" value={draft.categoriesHeading} onChange={(e) => patch((d) => ({ ...d, categoriesHeading: e.target.value }))} />
-          <Input label="Bestsellers heading" value={draft.bestsellersHeading} onChange={(e) => patch((d) => ({ ...d, bestsellersHeading: e.target.value }))} />
+          <Input label="Categories heading" placeholder="e.g. Shop by Category" value={draft.categoriesHeading} onChange={(e) => patch((d) => ({ ...d, categoriesHeading: e.target.value }))} />
+          <Input label="Bestsellers heading" placeholder="e.g. Our Bestsellers" value={draft.bestsellersHeading} onChange={(e) => patch((d) => ({ ...d, bestsellersHeading: e.target.value }))} />
         </div>
       </Block>
 
@@ -197,22 +198,22 @@ export default function HomePageEditor() {
         description="Products that sell out are hidden from the shop and shown here instead, so customers can see what you have already sold. It fills in automatically."
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <Input label="Small heading above" value={draft.sold.eyebrow} onChange={(e) => patch((d) => ({ ...d, sold: { ...d.sold, eyebrow: e.target.value } }))} />
-          <Input label="Heading" value={draft.sold.heading} onChange={(e) => patch((d) => ({ ...d, sold: { ...d.sold, heading: e.target.value } }))} />
+          <Input label="Small heading above" placeholder="Short text shown above the heading" value={draft.sold.eyebrow} onChange={(e) => patch((d) => ({ ...d, sold: { ...d.sold, eyebrow: e.target.value } }))} />
+          <Input label="Heading" placeholder="Enter a heading" value={draft.sold.heading} onChange={(e) => patch((d) => ({ ...d, sold: { ...d.sold, heading: e.target.value } }))} />
         </div>
-        <Textarea label="Description" rows={2} value={draft.sold.description} onChange={(e) => patch((d) => ({ ...d, sold: { ...d.sold, description: e.target.value } }))} />
+        <Textarea label="Description" placeholder="Enter a short description" rows={2} value={draft.sold.description} onChange={(e) => patch((d) => ({ ...d, sold: { ...d.sold, description: e.target.value } }))} />
       </Block>
 
       <Block title="Why Aura Jewels" description="Your points of difference.">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <Input label="Small heading above" value={draft.why.eyebrow} onChange={(e) => patch((d) => ({ ...d, why: { ...d.why, eyebrow: e.target.value } }))} />
-          <Input label="Heading" value={draft.why.heading} onChange={(e) => patch((d) => ({ ...d, why: { ...d.why, heading: e.target.value } }))} />
+          <Input label="Small heading above" placeholder="Short text shown above the heading" value={draft.why.eyebrow} onChange={(e) => patch((d) => ({ ...d, why: { ...d.why, eyebrow: e.target.value } }))} />
+          <Input label="Heading" placeholder="Enter a heading" value={draft.why.heading} onChange={(e) => patch((d) => ({ ...d, why: { ...d.why, heading: e.target.value } }))} />
         </div>
         {draft.why.points.map((point) => (
           <div key={point.id} className="flex items-start gap-3 rounded-(--radius-md) border border-border p-4">
             <div className="flex flex-1 flex-col gap-4">
-              <Input label="Title" value={point.title} onChange={(e) => patch((d) => ({ ...d, why: { ...d.why, points: d.why.points.map((p) => (p.id === point.id ? { ...p, title: e.target.value } : p)) } }))} />
-              <Textarea label="Description" rows={2} value={point.description} onChange={(e) => patch((d) => ({ ...d, why: { ...d.why, points: d.why.points.map((p) => (p.id === point.id ? { ...p, description: e.target.value } : p)) } }))} />
+              <Input label="Title" placeholder="Enter a title" value={point.title} onChange={(e) => patch((d) => ({ ...d, why: { ...d.why, points: d.why.points.map((p) => (p.id === point.id ? { ...p, title: e.target.value } : p)) } }))} />
+              <Textarea label="Description" placeholder="Enter a short description" rows={2} value={point.description} onChange={(e) => patch((d) => ({ ...d, why: { ...d.why, points: d.why.points.map((p) => (p.id === point.id ? { ...p, description: e.target.value } : p)) } }))} />
             </div>
             <RemoveButton label={`Remove ${point.title}`} onClick={() => patch((d) => ({ ...d, why: { ...d.why, points: d.why.points.filter((p) => p.id !== point.id) } }))} />
           </div>
@@ -222,8 +223,8 @@ export default function HomePageEditor() {
 
       <Block title="Customer Feedback" description="Testimonials shown on the home page.">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <Input label="Small heading above" value={draft.testimonials.eyebrow} onChange={(e) => patch((d) => ({ ...d, testimonials: { ...d.testimonials, eyebrow: e.target.value } }))} />
-          <Input label="Heading" value={draft.testimonials.heading} onChange={(e) => patch((d) => ({ ...d, testimonials: { ...d.testimonials, heading: e.target.value } }))} />
+          <Input label="Small heading above" placeholder="Short text shown above the heading" value={draft.testimonials.eyebrow} onChange={(e) => patch((d) => ({ ...d, testimonials: { ...d.testimonials, eyebrow: e.target.value } }))} />
+          <Input label="Heading" placeholder="Enter a heading" value={draft.testimonials.heading} onChange={(e) => patch((d) => ({ ...d, testimonials: { ...d.testimonials, heading: e.target.value } }))} />
         </div>
         {draft.testimonials.items.map((item) => {
           const setItem = (change: Partial<typeof item>) =>
@@ -232,8 +233,8 @@ export default function HomePageEditor() {
             <div key={item.id} className="flex items-start gap-3 rounded-(--radius-md) border border-border p-4">
               <div className="flex flex-1 flex-col gap-4">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                  <Input label="Name" value={item.name} onChange={(e) => setItem({ name: e.target.value })} />
-                  <Input label="City" value={item.city} onChange={(e) => setItem({ city: e.target.value })} />
+                  <Input label="Name" placeholder="Customer name" value={item.name} onChange={(e) => setItem({ name: e.target.value })} />
+                  <Input label="City" placeholder="e.g. Karachi" value={item.city} onChange={(e) => setItem({ city: e.target.value })} />
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-medium text-ink">Rating</label>
                     <select value={item.rating} onChange={(e) => setItem({ rating: Number(e.target.value) })} className="h-12 rounded-(--radius-sm) border border-border bg-surface px-4 text-base text-ink focus:border-gold focus:outline-none">
@@ -243,7 +244,7 @@ export default function HomePageEditor() {
                     </select>
                   </div>
                 </div>
-                <Textarea label="Quote" value={item.quote} onChange={(e) => setItem({ quote: e.target.value })} />
+                <Textarea label="Quote" placeholder="What the customer said" value={item.quote} onChange={(e) => setItem({ quote: e.target.value })} />
               </div>
               <RemoveButton label={`Remove testimonial from ${item.name}`} onClick={() => patch((d) => ({ ...d, testimonials: { ...d.testimonials, items: d.testimonials.items.filter((t) => t.id !== item.id) } }))} />
             </div>
@@ -254,27 +255,30 @@ export default function HomePageEditor() {
 
       <Block title="Social Feed" description="Your social channels and the post tiles shown on the home page.">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <Input label="Small heading above" value={draft.social.eyebrow} onChange={(e) => patch((d) => ({ ...d, social: { ...d.social, eyebrow: e.target.value } }))} />
-          <Input label="Handle" value={draft.social.handle} onChange={(e) => patch((d) => ({ ...d, social: { ...d.social, handle: e.target.value } }))} />
+          <Input label="Small heading above" placeholder="Short text shown above the heading" value={draft.social.eyebrow} onChange={(e) => patch((d) => ({ ...d, social: { ...d.social, eyebrow: e.target.value } }))} />
+          <Input label="Handle" placeholder="e.g. @aurajewelsbyzas" value={draft.social.handle} onChange={(e) => patch((d) => ({ ...d, social: { ...d.social, handle: e.target.value } }))} />
         </div>
-        <Textarea label="Description" rows={2} value={draft.social.description} onChange={(e) => patch((d) => ({ ...d, social: { ...d.social, description: e.target.value } }))} />
+        <Textarea label="Description" placeholder="Enter a short description" rows={2} value={draft.social.description} onChange={(e) => patch((d) => ({ ...d, social: { ...d.social, description: e.target.value } }))} />
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-          <Input label="Instagram link" value={draft.social.instagramUrl} onChange={(e) => patch((d) => ({ ...d, social: { ...d.social, instagramUrl: e.target.value } }))} />
-          <Input label="TikTok link" value={draft.social.tiktokUrl} onChange={(e) => patch((d) => ({ ...d, social: { ...d.social, tiktokUrl: e.target.value } }))} />
-          <Input label="Facebook link" value={draft.social.facebookUrl} onChange={(e) => patch((d) => ({ ...d, social: { ...d.social, facebookUrl: e.target.value } }))} />
+          <Input label="Instagram link" placeholder="https://instagram.com/yourhandle" value={draft.social.instagramUrl} onChange={(e) => patch((d) => ({ ...d, social: { ...d.social, instagramUrl: e.target.value } }))} />
+          <Input label="TikTok link" placeholder="https://tiktok.com/@yourhandle" value={draft.social.tiktokUrl} onChange={(e) => patch((d) => ({ ...d, social: { ...d.social, tiktokUrl: e.target.value } }))} />
+          <Input label="Facebook link" placeholder="https://facebook.com/yourpage" value={draft.social.facebookUrl} onChange={(e) => patch((d) => ({ ...d, social: { ...d.social, facebookUrl: e.target.value } }))} />
         </div>
-        <p className="text-xs text-muted">Post tiles use placeholder images until image uploads arrive with the backend. Each tile links to the URL you set.</p>
-        {draft.social.posts.map((post) => (
-          <div key={post.id} className="flex items-end gap-3">
-            <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input label="Caption" value={post.caption} onChange={(e) => patch((d) => ({ ...d, social: { ...d.social, posts: d.social.posts.map((p) => (p.id === post.id ? { ...p, caption: e.target.value } : p)) } }))} />
-              <Input label="Post link" value={post.url} onChange={(e) => patch((d) => ({ ...d, social: { ...d.social, posts: d.social.posts.map((p) => (p.id === post.id ? { ...p, url: e.target.value } : p)) } }))} />
-            </div>
-            <div className="pb-3.5">
+        <p className="text-xs text-muted">Each tile shows the photo or video you upload and links to its post link. Tiles without media show a placeholder.</p>
+        {draft.social.posts.map((post) => {
+          const updatePost = (change: Partial<SocialPost>) =>
+            patch((d) => ({ ...d, social: { ...d.social, posts: d.social.posts.map((p) => (p.id === post.id ? { ...p, ...change } : p)) } }));
+          return (
+            <div key={post.id} className="flex items-start gap-4 rounded-(--radius-md) border border-border p-4">
+              <SocialPostMediaField post={post} onChange={updatePost} />
+              <div className="grid flex-1 grid-cols-1 gap-4">
+                <Input label="Caption" placeholder="Short caption for the post" value={post.caption} onChange={(e) => updatePost({ caption: e.target.value })} />
+                <Input label="Post link" placeholder="https://" value={post.url} onChange={(e) => updatePost({ url: e.target.value })} hint="Where the tile goes when someone taps it" />
+              </div>
               <RemoveButton label={`Remove post ${post.caption}`} onClick={() => patch((d) => ({ ...d, social: { ...d.social, posts: d.social.posts.filter((p) => p.id !== post.id) } }))} />
             </div>
-          </div>
-        ))}
+          );
+        })}
         <AddButton label="Add post" onClick={() => patch((d) => ({ ...d, social: { ...d.social, posts: [...d.social.posts, { id: newId(), caption: "", url: d.social.instagramUrl }] } }))} />
       </Block>
 
@@ -282,7 +286,7 @@ export default function HomePageEditor() {
         {draft.trustPoints.map((point) => (
           <div key={point.id} className="flex items-end gap-3">
             <div className="flex-1">
-              <Input label="Text" value={point.label} onChange={(e) => patch((d) => ({ ...d, trustPoints: d.trustPoints.map((t) => (t.id === point.id ? { ...t, label: e.target.value } : t)) }))} />
+              <Input label="Text" placeholder="e.g. Free returns within 7 days" value={point.label} onChange={(e) => patch((d) => ({ ...d, trustPoints: d.trustPoints.map((t) => (t.id === point.id ? { ...t, label: e.target.value } : t)) }))} />
             </div>
             <div className="pb-3.5">
               <RemoveButton label={`Remove ${point.label}`} onClick={() => patch((d) => ({ ...d, trustPoints: d.trustPoints.filter((t) => t.id !== point.id) }))} />

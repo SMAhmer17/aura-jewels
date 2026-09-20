@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useReviewsStore } from "@/store/reviews-store";
 import { useCatalogStore } from "@/store/catalog-store";
 import { api } from "@/lib/api/client";
-import type { Review } from "@/types/review";
+import type { AdminReview, Review } from "@/types/review";
 
 const NO_REVIEWS: Review[] = [];
 
@@ -23,12 +23,42 @@ export function useProductReviews(productId: string): Review[] {
   return reviews ?? NO_REVIEWS;
 }
 
-export async function addReview(input: Omit<Review, "id" | "createdAt">) {
+export interface NewReview {
+  productId: string;
+  author: string;
+  email: string;
+  rating: number;
+  title?: string;
+  comment: string;
+}
+
+/** Submits a review. The API checks it, marks real buyers as verified, and allows one review per email per product. */
+export async function addReview(input: NewReview) {
   const product = useCatalogStore.getState().products.find((p) => p.id === input.productId);
   if (!product) throw new Error("Product not found");
   await api(`/products/${product.slug}/reviews`, {
     method: "POST",
-    body: { author: input.author, rating: input.rating, comment: input.comment },
+    body: { author: input.author, email: input.email, rating: input.rating, title: input.title || undefined, comment: input.comment },
   });
   await loadProductReviews(input.productId, product.slug);
+}
+
+// ---------------- Admin ----------------
+
+export async function loadAdminReviews(): Promise<void> {
+  useReviewsStore.getState().setAdminReviews(await api<AdminReview[]>("/admin/reviews", { as: "admin" }));
+}
+
+export function useAdminReviews(): AdminReview[] {
+  return useReviewsStore((state) => state.adminReviews);
+}
+
+export async function setReviewPublished(id: string, isPublished: boolean) {
+  await api(`/admin/reviews/${id}`, { method: "PATCH", as: "admin", body: { isPublished } });
+  await loadAdminReviews();
+}
+
+export async function removeReview(id: string) {
+  await api(`/admin/reviews/${id}`, { method: "DELETE", as: "admin" });
+  await loadAdminReviews();
 }

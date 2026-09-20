@@ -47,14 +47,14 @@ export default function AdminLoginPage() {
         <p className="mb-6 text-center text-xs uppercase tracking-widest text-gold">Admin Login</p>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Input
-            label="Email"
+            label="Email" placeholder="Enter your email address"
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
           <Input
-            label="Password"
+            label="Password" placeholder="Enter your password"
             type="password"
             required
             value={password}

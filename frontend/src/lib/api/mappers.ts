@@ -36,15 +36,17 @@ export function toProduct(p: ApiProduct): Product {
   };
 }
 
-type ApiOrder = Omit<Order, "discountCode" | "giftBoxFee" | "notes"> & {
+type ApiOrder = Omit<Order, "discountCode" | "giftBoxFee" | "notes" | "items"> & {
   discountCode: string | null;
   giftBoxFee: number | null;
   notes?: string | null;
+  items: (Omit<Order["items"][number], "image"> & { image: string | null })[];
 };
 
 export function toOrder(o: ApiOrder): Order {
   return {
     ...o,
+    items: o.items.map((i) => ({ ...i, image: i.image ?? undefined })),
     discountCode: o.discountCode ?? undefined,
     giftBoxFee: o.giftBoxFee ?? undefined,
     notes: o.notes ?? undefined,

@@ -2,7 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useOrders, updateOrderStatus } from "@/lib/services/orders-service";
+import { RefreshCw } from "lucide-react";
+import { loadOrders, useOrders, updateOrderStatus } from "@/lib/services/orders-service";
+import { Button } from "@/components/ui/Button";
+import { OrderItemImage } from "@/components/features/order/OrderItemImage";
 import type { OrderStatus, PaymentStatus } from "@/types/order";
 import { orderStatusOptions, orderStatusVariant, paymentStatusOptions, paymentStatusVariant } from "@/lib/utils/order-status";
 import { RANGE_OPTIONS, inRange, type RangeId } from "@/lib/utils/date-range";
@@ -16,6 +19,7 @@ import { errorMessage } from "@/lib/api/client";
 
 export default function OrdersPage() {
   const orders = useOrders();
+  const [refreshing, setRefreshing] = useState(false);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [paymentFilter, setPaymentFilter] = useState<PaymentStatus | "all">("all");
@@ -63,11 +67,28 @@ export default function OrdersPage() {
     }
   }
 
+  async function refresh() {
+    setRefreshing(true);
+    try {
+      await loadOrders();
+    } catch (error) {
+      toast({ title: "Could not refresh orders", description: errorMessage(error), variant: "error" });
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl text-ink sm:text-3xl">Orders</h1>
-        <p className="text-sm text-muted">{orders.length} total orders. Cancelling an order returns its items to stock.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl text-ink sm:text-3xl">Orders</h1>
+          <p className="text-sm text-muted">{orders.length} total orders. New orders appear automatically. Cancelling an order returns its items to stock.</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={refresh} disabled={refreshing}>
+          <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
+          {refreshing ? "Refreshing" : "Refresh"}
+        </Button>
       </div>
 
       {orders.length === 0 ? (
@@ -134,7 +155,19 @@ export default function OrdersPage() {
                         <span className="text-xs text-muted">{order.email}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted">{order.items.reduce((sum, i) => sum + i.quantity, 0)} item(s)</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <div className="flex -space-x-2">
+                          {order.items.slice(0, 3).map((item, i) => (
+                            <OrderItemImage key={`${item.variantId}-${i}`} item={item} className="h-9 w-9 ring-2 ring-surface" />
+                          ))}
+                        </div>
+                        <span className="text-xs text-muted">
+                          {order.items.length > 3 ? `+${order.items.length - 3} more, ` : ""}
+                          {order.items.reduce((sum, i) => sum + i.quantity, 0)} item(s)
+                        </span>
+                      </div>
+                    </TableCell>
                     <TableCell>{formatPrice(order.total)}</TableCell>
                     <TableCell>
                       <Badge variant={paymentStatusVariant[order.paymentStatus ?? "unpaid"]} className="capitalize">

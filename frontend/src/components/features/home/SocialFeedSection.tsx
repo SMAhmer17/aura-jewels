@@ -2,7 +2,7 @@
 
 import { useHomeContent } from "@/lib/services/home-content-service";
 import { Reveal } from "@/components/ui/Reveal";
-import { ProductImagePlaceholder } from "@/components/features/product/ProductImagePlaceholder";
+import { SocialTileMedia } from "@/components/features/home/SocialTileMedia";
 import { InstagramIcon, FacebookIcon, TikTokIcon } from "@/components/layout/SocialIcons";
 
 export function SocialFeedSection() {
@@ -34,10 +34,7 @@ export function SocialFeedSection() {
                   aria-label={post.caption}
                   className="group relative block aspect-square overflow-hidden rounded-(--radius-sm)"
                 >
-                  <ProductImagePlaceholder
-                    id={`social-${post.id}`}
-                    className="h-full w-full transition-transform duration-500 group-hover:scale-105"
-                  />
+                  <SocialTileMedia post={post} className="transition-transform duration-500 group-hover:scale-105" />
                   <span className="absolute inset-0 flex items-center justify-center bg-ink/0 text-ivory opacity-0 transition-all duration-300 group-hover:bg-ink/55 group-hover:opacity-100">
                     <InstagramIcon size={26} />
                   </span>

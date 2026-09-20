@@ -81,16 +81,43 @@ model ProductVariant {
 }
 
 model Review {
-  id          String   @id @default(uuid())
-  productId   String
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  author      String
-  rating      Int
-  comment     String
-  isPublished Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  id            String   @id @default(uuid())
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  author        String
+  /// Kept private (never sent to the storefront). Used to stop repeat reviews and to confirm the reviewer bought the product.
+  email         String?
+  title         String?
+  rating        Int
+  comment       String
+  /// True when this email has a non-cancelled order containing the product.
+  verifiedBuyer Boolean  @default(false)
+  isPublished   Boolean  @default(true)
+  createdAt     DateTime @default(now())
 
+  @@unique([productId, email])
   @@index([productId])
+}
+
+enum MessageStatus {
+  unread
+  read
+  resolved
+}
+
+/// An inquiry sent from the storefront's contact form. The owner replies by phone or email.
+model ContactMessage {
+  id          String        @id @default(uuid())
+  name        String
+  email       String
+  phone       String?
+  /// Order the inquiry is about, if the customer gave one (e.g. AJ-2026-1001).
+  orderNumber String?
+  message     String
+  status      MessageStatus @default(unread)
+  createdAt   DateTime      @default(now())
+
+  @@index([status, createdAt])
 }
 
 /// The single store admin. Created by the seed script from ADMIN_EMAIL / ADMIN_PASSWORD.
@@ -170,6 +197,8 @@ model OrderItem {
   size      String
   price     Int
   quantity  Int
+  /// The product's cover photo when the order was placed, so the order still shows what was bought after edits or deletion.
+  image     String?
 
   @@index([orderId])
 }

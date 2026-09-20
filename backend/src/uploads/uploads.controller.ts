@@ -12,6 +12,16 @@ function detectImage(buf: Buffer): 'jpg' | 'png' | 'webp' | null {
   return null;
 }
 
+/** MP4 files start with a box called "ftyp"; WebM files start with the EBML marker. Checked by content, never by file name. */
+function detectVideo(buf: Buffer): 'mp4' | 'webm' | null {
+  // QuickTime (.mov) files also use "ftyp" but most browsers cannot play them, so only real MP4 brands are accepted.
+  if (buf.length > 12 && buf.subarray(4, 8).toString() === 'ftyp' && buf.subarray(8, 12).toString() !== 'qt  ') return 'mp4';
+  if (buf.length > 12 && buf[0] === 0x1a && buf[1] === 0x45 && buf[2] === 0xdf && buf[3] === 0xa3) return 'webm';
+  return null;
+}
+
+const VIDEO_MAX_BYTES = 25 * 1024 * 1024;
+
 @Controller('admin/uploads')
 @UseGuards(AdminGuard)
 export class UploadsController {
@@ -23,6 +33,16 @@ export class UploadsController {
     if (!file) throw new BadRequestException('Choose an image to upload.');
     const type = detectImage(file.buffer);
     if (!type) throw new BadRequestException('Only JPEG, PNG, or WebP images are allowed.');
+    return this.storage.save(file.buffer, type);
+  }
+
+  /** Short clips for the home page social tiles (MP4 or WebM, up to 25 MB). */
+  @Post('video')
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage(), limits: { fileSize: VIDEO_MAX_BYTES, files: 1 } }))
+  async uploadVideo(@UploadedFile() file?: Express.Multer.File) {
+    if (!file) throw new BadRequestException('Choose a video to upload.');
+    const type = detectVideo(file.buffer);
+    if (!type) throw new BadRequestException('Only MP4 or WebM videos are allowed.');
     return this.storage.save(file.buffer, type);
   }
 }

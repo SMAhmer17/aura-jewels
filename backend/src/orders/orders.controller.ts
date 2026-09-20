@@ -17,6 +17,15 @@ export class OrdersController {
     return this.orders.placeOrder(dto, req.user?.role === 'customer' ? req.user.sub : undefined);
   }
 
+  // Guests track an order with just its number. Limited so numbers cannot be guessed in bulk.
+  @Get('orders/track/:orderNumber')
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  async track(@Param('orderNumber') orderNumber: string) {
+    const order = await this.orders.track(orderNumber);
+    if (!order) throw new NotFoundException('We could not find an order with that number. Check it and try again.');
+    return order;
+  }
+
   @Get('orders/:id')
   async confirmation(@Param('id', ParseUUIDPipe) id: string) {
     const order = await this.orders.getPublic(id);

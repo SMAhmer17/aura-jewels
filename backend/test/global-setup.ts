@@ -10,7 +10,7 @@ export default async function globalSetup() {
   const prisma = new PrismaClient({ datasources: { db: { url: env.DATABASE_URL as string } } });
   try {
     await prisma.$executeRawUnsafe(
-      'TRUNCATE "OrderEvent","OrderItem","Order","Review","ProductVariant","Product","Category","Discount","Customer","AdminUser","HomeContent","Settings" RESTART IDENTITY CASCADE',
+      'TRUNCATE "OrderEvent","OrderItem","Order","Review","ContactMessage","ProductVariant","Product","Category","Discount","Customer","AdminUser","HomeContent","Settings" RESTART IDENTITY CASCADE',
     );
   } finally {
     await prisma.$disconnect();

@@ -8,6 +8,7 @@ import { validateDiscountCode, type AppliedDiscount } from "@/lib/services/disco
 import { useCatalogReady } from "@/lib/services/catalog-service";
 import { errorMessage } from "@/lib/api/client";
 import { useCustomerAuthStore } from "@/store/customer-auth-store";
+import { openAccountDrawer } from "@/store/ui-store";
 import { CatalogLoading } from "@/components/ui/CatalogLoading";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -27,6 +28,7 @@ export default function CheckoutPage() {
   const giftBoxFee = giftBox ? giftBoxPrice ?? 0 : 0;
 
   const account = useCustomerAuthStore((s) => s.customer);
+  const signedIn = useCustomerAuthStore((s) => s.isAuthenticated);
   const { ready, failed } = useCatalogReady();
   const [form, setForm] = useState({
     customerName: "",
@@ -111,19 +113,32 @@ export default function CheckoutPage() {
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
         <form onSubmit={handleSubmit} className="flex flex-col gap-5 lg:col-span-2">
+          {signedIn ? (
+            <p className="rounded-(--radius-md) bg-cream p-4 text-xs text-muted">
+              Signed in as {account?.email}. This order will be saved to your account so you can follow it any time.
+            </p>
+          ) : (
+            <p className="rounded-(--radius-md) bg-cream p-4 text-xs text-muted">
+              Checking out as a guest is fine. Want your orders saved so you can see your history and follow active orders?{" "}
+              <button type="button" onClick={openAccountDrawer} className="text-ink underline underline-offset-4">
+                Sign in or create an account
+              </button>{" "}
+              before you place this order.
+            </p>
+          )}
           <h2 className="text-lg text-ink">Shipping Details</h2>
           <Input
-            label="Full Name"
+            label="Full Name" placeholder="Enter your full name"
             required
             value={form.customerName}
             onChange={update("customerName")}
           />
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <Input label="Email" type="email" required value={form.email} onChange={update("email")} />
-            <Input label="Phone" type="tel" required value={form.phone} onChange={update("phone")} />
+            <Input label="Email" placeholder="Enter your email address" type="email" required value={form.email} onChange={update("email")} />
+            <Input label="Phone" placeholder="e.g. 0300 1234567" type="tel" required value={form.phone} onChange={update("phone")} />
           </div>
-          <Input label="Address" required value={form.address} onChange={update("address")} />
-          <Input label="City" required value={form.city} onChange={update("city")} />
+          <Input label="Address" placeholder="House number, street and area" required value={form.address} onChange={update("address")} />
+          <Input label="City" placeholder="Enter your city" required value={form.city} onChange={update("city")} />
 
           <label className="flex cursor-pointer items-start gap-3 rounded-(--radius-md) border border-border p-4">
             <input

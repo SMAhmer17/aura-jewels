@@ -52,6 +52,27 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     };
   }, [checked, isAuthenticated, attempt]);
 
+  // Keep the dashboard current: new orders arrive from the storefront while this page stays open, so
+  // reload the data every 30 seconds, and straight away when the tab is opened or focused again.
+  useEffect(() => {
+    if (data !== "ready") return;
+    let last = Date.now();
+    const refresh = () => {
+      if (document.visibilityState !== "visible" || Date.now() - last < 5_000) return;
+      last = Date.now();
+      // A failed refresh keeps what is already on screen; a 401 signs the admin out on its own.
+      loadAdminData().catch(() => undefined);
+    };
+    const timer = setInterval(refresh, 30_000);
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("focus", refresh);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener("focus", refresh);
+    };
+  }, [data]);
+
   if (!checked || !isAuthenticated) return null;
 
   if (data === "loading") {

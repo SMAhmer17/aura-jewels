@@ -4,6 +4,9 @@ const SECTION_IDS = ['categories', 'bestsellers', 'sold', 'why', 'testimonials',
 // Links must be web links or site paths. This blocks javascript: URLs that would run when clicked.
 const SAFE_LINK = /^(https?:\/\/[^\s"'<>]+|\/[^\s"'<>]*)$/;
 
+// A tile's picture or video must be a web link or a file this API uploaded.
+const MEDIA_URL = /^(https?:\/\/[^\s"'<>]{1,500}|\/uploads\/[A-Za-z0-9._-]{1,200})$/;
+
 type Json = Record<string, unknown>;
 const isObject = (v: unknown): v is Json => typeof v === 'object' && v !== null && !Array.isArray(v);
 
@@ -43,7 +46,16 @@ export function validateHomeContent(content: unknown): asserts content is Json {
     link(social.facebookUrl, 'The Facebook link');
     if (social.posts !== undefined) {
       if (!Array.isArray(social.posts) || social.posts.length > 24) throw new BadRequestException('social.posts must be a list of at most 24 posts.');
-      for (const p of social.posts) link(isObject(p) ? p.url : undefined, 'A social post link');
+      for (const p of social.posts) {
+        link(isObject(p) ? p.url : undefined, 'A social post link');
+        if (!isObject(p) || p.mediaUrl === undefined || p.mediaUrl === null || p.mediaUrl === '') continue;
+        if (typeof p.mediaUrl !== 'string' || !MEDIA_URL.test(p.mediaUrl)) {
+          throw new BadRequestException('A post picture or video must be an https link or an uploaded file.');
+        }
+        if (p.mediaType !== 'image' && p.mediaType !== 'video') {
+          throw new BadRequestException('A post with media must say whether it is an image or a video.');
+        }
+      }
     }
   }
   if (testimonials !== undefined && (!isObject(testimonials) || !Array.isArray(testimonials.items) || testimonials.items.length > 24)) {

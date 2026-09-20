@@ -76,17 +76,20 @@ Base path: `/api/v1`. Send the admin's token as `Authorization: Bearer <token>`.
 |---|---|
 | `GET /categories` | All categories |
 | `GET /products`, `GET /products/:slug` | Active products with sizes and stock (sold out ones included, so the storefront can show them as sold) |
-| `GET /products/:slug/reviews`, `POST /products/:slug/reviews` | Read and add reviews |
+| `GET /products/:slug/reviews`, `POST /products/:slug/reviews` | Read reviews, and add one (name, email, rating, optional title, text of at least 10 characters). One review per email per product. Reviewers who have a non-cancelled order for the product are marked verified. The email is never returned publicly |
 | `POST /discounts/validate` | Preview a promo code for a subtotal |
 | `POST /orders` | Place a cash on delivery order (see below) |
 | `GET /orders/:id` | Order confirmation, by the order's unguessable id |
+| `GET /orders/track/:orderNumber` | Track an order by its number (e.g. `AJ-2026-1001`): status, timeline and items, never the customer's name, phone, email or address. Rate limited |
+| `POST /contact` | Contact form. Saved for the admin to answer; rate limited, with a hidden field that quietly drops bots |
 | `GET /settings`, `GET /home-content` | Store settings and the home page content |
 | `POST /auth/register`, `POST /auth/login`, `GET /me`, `GET /me/orders` | Optional customer accounts |
 
 **Admin** (all under `/admin`, admin token required)
 
 `overview`, `orders` (list with filters, detail, status, payment and notes), `products` (create, edit sizes and stock,
-delete), `categories`, `discounts`, `reviews`, `inventory`, `customers`, `analytics`, `uploads` (product images),
+delete), `categories`, `discounts`, `reviews` (list with the private email, hide or show, delete), `messages` (contact form inbox: filter,
+mark read or resolved, delete), `inventory`, `customers`, `analytics`, `uploads` (product images, and videos for home page tiles),
 `settings`, `home-content`. Sign in with `POST /auth/admin/login`.
 
 ### How an order is placed

@@ -25,6 +25,24 @@ describe('Orders', () => {
       expect(view.body).not.toHaveProperty('notes');
     });
 
+    it('remembers the cover photo on each order line, even after the product is edited', async () => {
+      const cover = 'https://cdn.example.com/cover-photo.jpg';
+      const p = await makeProduct(ctx, { images: [cover, 'https://cdn.example.com/2.jpg', 'https://cdn.example.com/3.jpg'] });
+      const res = await place([{ variantId: p.variants[0].id, quantity: 1 }]).expect(201);
+      expect((await ctx.http().get(`/api/v1/orders/${res.body.id}`).expect(200)).body.items[0].image).toBe(cover);
+
+      // Change the product's photos; the order keeps showing what was actually bought.
+      await ctx.http().patch(`/api/v1/admin/products/${p.id}`).set('Authorization', `Bearer ${ctx.adminToken}`)
+        .send({ images: ['https://cdn.example.com/new-a.jpg', 'https://cdn.example.com/new-b.jpg', 'https://cdn.example.com/new-c.jpg'] }).expect(200);
+      const admin = await ctx.http().get(`/api/v1/admin/orders/${res.body.id}`).set('Authorization', `Bearer ${ctx.adminToken}`).expect(200);
+      expect(admin.body.items[0].image).toBe(cover);
+
+      // Deleting the product does not break the order either.
+      await ctx.http().delete(`/api/v1/admin/products/${p.id}`).set('Authorization', `Bearer ${ctx.adminToken}`).expect(204);
+      const after = await ctx.http().get(`/api/v1/orders/${res.body.id}`).expect(200);
+      expect(after.body.items[0]).toMatchObject({ image: cover, productId: null });
+    });
+
     it('rejects a client that tries to send its own prices', async () => {
       const p = await makeProduct(ctx);
       await place([{ variantId: p.variants[0].id, quantity: 1, price: 1 }]).expect(400);

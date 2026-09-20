@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Check } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Drawer } from "@/components/ui/Drawer";
 import { Input } from "@/components/ui/Input";
@@ -13,7 +14,13 @@ import { cn } from "@/lib/utils/cn";
 
 type Mode = "signin" | "register";
 
-function AccountPanel({ onClose }: { onClose: () => void }) {
+const BENEFITS = [
+  "See everything you have bought, all in one place",
+  "Follow your active orders from placed to delivered",
+  "Check out faster with your details filled in",
+];
+
+export function AccountPanel({ onClose }: { onClose: () => void }) {
   const { isAuthenticated, customer } = useCustomerAuthStore();
   const [mode, setMode] = useState<Mode>("signin");
   const [form, setForm] = useState({ name: "", email: "", password: "" });
@@ -47,6 +54,12 @@ function AccountPanel({ onClose }: { onClose: () => void }) {
           <p className="text-sm text-muted">{customer?.email}</p>
         </div>
         <div className="flex flex-col divide-y divide-ink/10 border-y border-ink/10 text-base">
+          <Link href="/account" onClick={onClose} className="py-4 text-ink hover:text-gold">
+            My Orders
+          </Link>
+          <Link href="/track-order" onClick={onClose} className="py-4 text-ink hover:text-gold">
+            Track an Order
+          </Link>
           <Link href="/wishlist" onClick={onClose} className="py-4 text-ink hover:text-gold">
             My Wishlist
           </Link>
@@ -89,17 +102,31 @@ function AccountPanel({ onClose }: { onClose: () => void }) {
         ))}
       </div>
 
+      {mode === "register" && (
+        <div className="rounded-(--radius-md) border border-gold/40 bg-gold/10 p-4">
+          <p className="text-sm text-ink">Why create an account?</p>
+          <ul className="mt-2 flex flex-col gap-1.5 text-xs text-muted">
+            {BENEFITS.map((benefit) => (
+              <li key={benefit} className="flex gap-2">
+                <Check size={14} className="mt-px shrink-0 text-gold" />
+                {benefit}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {mode === "register" && (
           <Input
-            label="Full Name"
+            label="Full Name" placeholder="Enter your full name"
             required
             value={form.name}
             onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
           />
         )}
         <Input
-          label="Email"
+          label="Email" placeholder="Enter your email address"
           type="email"
           required
           value={form.email}
@@ -109,6 +136,7 @@ function AccountPanel({ onClose }: { onClose: () => void }) {
           label="Password"
           type="password"
           required
+          placeholder={mode === "register" ? "Create a password" : "Enter your password"}
           minLength={mode === "register" ? 8 : undefined}
           hint={mode === "register" ? "At least 8 characters" : undefined}
           value={form.password}
@@ -123,7 +151,13 @@ function AccountPanel({ onClose }: { onClose: () => void }) {
           {submitting ? "Please wait..." : mode === "signin" ? "Sign In" : "Create Account"}
         </Button>
       </form>
-      <p className="text-center text-xs text-muted">An account is optional. You can always check out as a guest.</p>
+      <p className="text-center text-xs text-muted">
+        An account is optional. You can always check out as a guest and follow your order with its order number on the{" "}
+        <Link href="/track-order" onClick={onClose} className="text-ink underline underline-offset-4">
+          Track Order
+        </Link>{" "}
+        page.
+      </p>
     </div>
   );
 }

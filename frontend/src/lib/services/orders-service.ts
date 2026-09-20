@@ -7,7 +7,7 @@ import { loadDiscounts } from "@/lib/services/discounts-service";
 import { api, ApiError } from "@/lib/api/client";
 import { toOrder } from "@/lib/api/mappers";
 import { useCustomerAuthStore } from "@/store/customer-auth-store";
-import type { Order, OrderStatus, PaymentStatus } from "@/types/order";
+import type { Order, OrderStatus, PaymentStatus, TrackedOrder } from "@/types/order";
 
 export interface ShippingDetails {
   customerName: string;
@@ -98,6 +98,11 @@ export async function updateOrderDetails(id: string, patch: { paymentStatus?: Pa
 /** The order confirmation page. The order id is an unguessable link, so guests can open it without an account. */
 export function useOrderById(id: string): OrderLookup {
   return useOrderLookup(id, async () => toOrder(await api<RawOrder>(`/orders/${id}`)), undefined);
+}
+
+/** Looks an order up by its number (e.g. AJ-2026-1001) so anyone can follow its status. Throws a friendly ApiError if none matches. */
+export function trackOrder(orderNumber: string): Promise<TrackedOrder> {
+  return api<TrackedOrder>(`/orders/track/${encodeURIComponent(orderNumber.trim())}`);
 }
 
 /** The signed-in customer's own orders (empty for guests). */

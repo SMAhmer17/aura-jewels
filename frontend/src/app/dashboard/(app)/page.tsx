@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useAllProducts, useCategories } from "@/lib/services/catalog-service";
 import { useOrders } from "@/lib/services/orders-service";
 import { useDiscounts } from "@/lib/services/discounts-service";
+import { useMessages } from "@/lib/services/messages-service";
+import { useAdminReviews } from "@/lib/services/reviews-service";
 import { useSettings } from "@/lib/services/settings-service";
 import { countsAsSale } from "@/lib/utils/order-status";
 import { buildSummary, type SummaryItem, type SummaryTone } from "@/lib/utils/dashboard-summary";
@@ -57,10 +59,12 @@ export default function DashboardOverviewPage() {
   const categories = useCategories();
   const orders = useOrders();
   const discounts = useDiscounts();
+  const messages = useMessages();
+  const reviews = useAdminReviews();
   const { lowStockThreshold } = useSettings();
   const threshold = lowStockThreshold ?? 5;
 
-  const summary = buildSummary({ orders, products, discounts, lowStockThreshold: threshold });
+  const summary = buildSummary({ orders, products, discounts, messages, reviews, lowStockThreshold: threshold });
   const needsAttention = summary.filter((i) => i.tone !== "info");
   const status = summary.filter((i) => i.tone === "info");
   const actionCount = summary.filter((i) => i.tone === "action").length;

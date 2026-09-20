@@ -1,6 +1,8 @@
 import type { Discount } from "../../types/discount";
+import type { ContactMessage } from "../../types/message";
 import type { Order } from "../../types/order";
 import type { Product } from "../../types/product";
+import type { AdminReview } from "../../types/review";
 import { formatPrice } from "./currency";
 
 /**
@@ -22,6 +24,8 @@ export interface SummaryInput {
   orders: Order[];
   products: Product[];
   discounts: Discount[];
+  messages?: ContactMessage[];
+  reviews?: AdminReview[];
   lowStockThreshold: number;
   now?: Date;
 }
@@ -44,7 +48,7 @@ function agoText(days: number) {
   return `${days} days ago`;
 }
 
-export function buildSummary({ orders, products, discounts, lowStockThreshold, now = new Date() }: SummaryInput): SummaryItem[] {
+export function buildSummary({ orders, products, discounts, messages = [], reviews = [], lowStockThreshold, now = new Date() }: SummaryInput): SummaryItem[] {
   const today = dayOf(now);
   const items: SummaryItem[] = [];
 
@@ -78,6 +82,28 @@ export function buildSummary({ orders, products, discounts, lowStockThreshold, n
       tone: "action",
       text: `${plural(unpaidDelivered.length, "delivered order")} ${are(unpaidDelivered.length)} still marked unpaid (${formatPrice(owed)} in cash to collect). Mark ${unpaidDelivered.length === 1 ? "it" : "them"} as paid once the money is received.`,
       href: "/dashboard/orders",
+    });
+  }
+
+  // ---- Customer care ----
+  const unread = messages.filter((m) => m.status === "unread");
+  if (unread.length > 0) {
+    items.push({
+      id: "messages",
+      tone: "action",
+      text: `${plural(unread.length, "customer message")} ${are(unread.length)} waiting for a reply. Reply by email or phone, then mark ${unread.length === 1 ? "it" : "them"} resolved.`,
+      href: "/dashboard/messages",
+    });
+  }
+
+  const dayAgo = (iso: string) => daysBetween(dayOf(new Date(iso)), today);
+  const lowReviews = reviews.filter((r) => r.isPublished && r.rating <= 2 && dayAgo(r.createdAt) <= 14);
+  if (lowReviews.length > 0) {
+    items.push({
+      id: "low-reviews",
+      tone: "action",
+      text: `${plural(lowReviews.length, "recent review")} ${lowReviews.length === 1 ? "has" : "have"} 1 or 2 stars and ${are(lowReviews.length)} visible on the shop. Take a look, then reach out to the customer or hide ${lowReviews.length === 1 ? "it" : "them"}.`,
+      href: "/dashboard/reviews",
     });
   }
 
@@ -129,6 +155,11 @@ export function buildSummary({ orders, products, discounts, lowStockThreshold, n
   const drafts = products.filter((p) => p.status === "draft");
   if (drafts.length > 0) {
     items.push({ id: "drafts", tone: "info", text: `${plural(drafts.length, "product")} ${are(drafts.length)} saved as ${drafts.length === 1 ? "a draft" : "drafts"} and not visible in the shop yet.`, href: "/dashboard/products" });
+  }
+
+  const newReviews = reviews.filter((r) => dayAgo(r.createdAt) <= 7);
+  if (newReviews.length > 0) {
+    items.push({ id: "new-reviews", tone: "info", text: `${plural(newReviews.length, "new review")} in the last 7 days.`, href: "/dashboard/reviews" });
   }
 
   const todays = orders.filter((o) => o.status !== "cancelled" && dayOf(new Date(o.createdAt)) === today);

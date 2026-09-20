@@ -51,23 +51,23 @@ export default function SettingsPage() {
           <CardContent className="flex flex-col gap-4">
             <h2 className="text-base text-ink">Store Profile</h2>
             <Input
-              label="Store Name"
+              label="Store Name" placeholder="Enter your store name"
               value={form.storeName}
               onChange={(e) => setForm((prev) => ({ ...prev, storeName: e.target.value }))}
             />
             <Input
-              label="Tagline"
+              label="Tagline" placeholder="e.g. By ZAS"
               value={form.tagline}
               onChange={(e) => setForm((prev) => ({ ...prev, tagline: e.target.value }))}
             />
             <Input
-              label="Support Email"
+              label="Support Email" placeholder="e.g. contact@yourstore.com"
               type="email"
               value={form.supportEmail}
               onChange={(e) => setForm((prev) => ({ ...prev, supportEmail: e.target.value }))}
             />
             <Input
-              label="Support Phone"
+              label="Support Phone" placeholder="e.g. 0311 8706843"
               value={form.supportPhone}
               onChange={(e) => setForm((prev) => ({ ...prev, supportPhone: e.target.value }))}
             />
@@ -78,7 +78,7 @@ export default function SettingsPage() {
           <CardContent className="flex flex-col gap-4">
             <h2 className="text-base text-ink">Inventory</h2>
             <Input
-              label="Low Stock Threshold"
+              label="Low Stock Threshold" placeholder="e.g. 5"
               type="number"
               min="0"
               value={form.lowStockThreshold}
@@ -92,14 +92,14 @@ export default function SettingsPage() {
           <CardContent className="flex flex-col gap-4">
             <h2 className="text-base text-ink">Shipping</h2>
             <Input
-              label="Flat Shipping Rate (PKR)"
+              label="Flat Shipping Rate (PKR)" placeholder="e.g. 250"
               type="number"
               min="0"
               value={form.shippingFlatRate}
               onChange={(e) => setForm((prev) => ({ ...prev, shippingFlatRate: Number(e.target.value) }))}
             />
             <Input
-              label="Free Shipping Threshold (PKR)"
+              label="Free Shipping Threshold (PKR)" placeholder="e.g. 50000"
               type="number"
               min="0"
               value={form.freeShippingThreshold}
@@ -107,7 +107,7 @@ export default function SettingsPage() {
               hint="Orders at or above this subtotal ship free"
             />
             <Input
-              label="Gift Box Price (PKR)"
+              label="Gift Box Price (PKR)" placeholder="e.g. 300"
               type="number"
               min="0"
               value={form.giftBoxPrice}

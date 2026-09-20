@@ -13,10 +13,13 @@ import {
   Percent,
   TrendingUp,
   Settings,
+  MessageSquare,
+  Star,
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { adminLogout } from "@/lib/services/auth-service";
+import { useUnreadMessageCount } from "@/lib/services/messages-service";
 
 const navItems = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -25,6 +28,8 @@ const navItems = [
   { label: "Categories", href: "/dashboard/categories", icon: Tag },
   { label: "Inventory", href: "/dashboard/inventory", icon: Boxes },
   { label: "Orders", href: "/dashboard/orders", icon: ClipboardList },
+  { label: "Messages", href: "/dashboard/messages", icon: MessageSquare },
+  { label: "Reviews", href: "/dashboard/reviews", icon: Star },
   { label: "Customers", href: "/dashboard/customers", icon: Users },
   { label: "Discounts", href: "/dashboard/discounts", icon: Percent },
   { label: "Analytics", href: "/dashboard/analytics", icon: TrendingUp },
@@ -34,6 +39,7 @@ const navItems = [
 export function DashboardSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const unreadMessages = useUnreadMessageCount();
 
   function handleLogout() {
     adminLogout();
@@ -60,6 +66,9 @@ export function DashboardSidebar() {
             >
               <item.icon size={16} />
               {item.label}
+              {item.href === "/dashboard/messages" && unreadMessages > 0 && (
+                <span className="ml-auto rounded-full bg-gold px-2 py-0.5 text-[11px] font-medium text-ink">{unreadMessages}</span>
+              )}
             </Link>
           );
         })}

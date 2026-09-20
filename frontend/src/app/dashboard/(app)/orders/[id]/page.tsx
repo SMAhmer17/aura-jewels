@@ -12,6 +12,7 @@ import {
   paymentStatusOptions,
   paymentStatusVariant,
 } from "@/lib/utils/order-status";
+import { OrderItemImage } from "@/components/features/order/OrderItemImage";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -104,8 +105,13 @@ export default function OrderDetailPage() {
             </TableHead>
             <TableBody>
               {order.items.map((item) => (
-                <TableRow key={`${item.productId}-${item.variantId}`}>
-                  <TableCell>{item.name}</TableCell>
+                <TableRow key={`${item.productId}-${item.variantId}-${item.size}`}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <OrderItemImage item={item} className="h-14 w-14" />
+                      <span>{item.name}</span>
+                    </div>
+                  </TableCell>
                   <TableCell className="text-muted">{item.size}</TableCell>
                   <TableCell>{item.quantity}</TableCell>
                   <TableCell className="text-right">{formatPrice(item.price * item.quantity)}</TableCell>
@@ -153,7 +159,7 @@ export default function OrderDetailPage() {
                   {paymentStatusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </label>
-              <Textarea label="Internal notes" rows={3} value={notesValue} onChange={(e) => setNotes(e.target.value)} hint="Only visible to you" />
+              <Textarea label="Internal notes" placeholder="Add a note about this order. Only you can see it" rows={3} value={notesValue} onChange={(e) => setNotes(e.target.value)} hint="Only visible to you" />
               <Button
                 variant="outline"
                 size="sm"

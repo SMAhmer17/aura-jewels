@@ -35,7 +35,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
       )}
     >
       {title && (
-        <h2 className="mb-4 text-xl text-ink" id="modal-title">
+        <h2 className="mb-4 shrink-0 text-xl text-ink" id="modal-title">
           {title}
         </h2>
       )}

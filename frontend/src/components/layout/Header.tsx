@@ -10,6 +10,7 @@ import { MobileNav } from "@/components/layout/MobileNav";
 import { Logo } from "@/components/layout/Logo";
 import { SearchDrawer } from "@/components/layout/SearchDrawer";
 import { AccountDrawer } from "@/components/layout/AccountDrawer";
+import { useUiStore } from "@/store/ui-store";
 
 function IconBadge({ count }: { count: number }) {
   if (count === 0) return null;
@@ -26,7 +27,8 @@ export function Header() {
   const wishlistCount = useWishlistStore((s) => s.productIds.length);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [accountOpen, setAccountOpen] = useState(false);
+  const accountOpen = useUiStore((s) => s.accountOpen);
+  const setAccountOpen = useUiStore((s) => s.setAccountOpen);
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-ivory/95 backdrop-blur">
@@ -43,9 +45,6 @@ export function Header() {
         <Logo className="text-ink md:flex-1" />
 
         <nav className="hidden flex-1 items-center justify-center gap-4 md:flex lg:gap-8">
-          <Link href="/" className="text-[13px] tracking-wide text-ink transition-colors hover:text-gold lg:text-sm">
-            Home
-          </Link>
           {categories.map((category) => (
             <Link
               key={category.id}

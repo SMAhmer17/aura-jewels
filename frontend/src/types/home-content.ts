@@ -22,7 +22,11 @@ export interface TitledPoint {
 export interface SocialPost {
   id: string;
   caption: string;
+  /** Where the tile links to (the post on Instagram, TikTok, and so on). */
   url: string;
+  /** Picture or video shown on the tile. Without one, a placeholder is shown. */
+  mediaUrl?: string;
+  mediaType?: "image" | "video";
 }
 
 export interface TrustPoint {

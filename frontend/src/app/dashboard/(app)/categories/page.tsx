@@ -154,16 +154,16 @@ export default function CategoriesPage() {
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? "Edit Category" : "Add Category"}>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Input label="Name" required value={form.name} onChange={(e) => handleNameChange(e.target.value)} />
+          <Input label="Name" placeholder="e.g. Rings" required value={form.name} onChange={(e) => handleNameChange(e.target.value)} />
           <Input
-            label="Slug"
+            label="Slug" placeholder="e.g. rings"
             required
             value={form.slug}
             onChange={(e) => setForm((prev) => ({ ...prev, slug: slugify(e.target.value) }))}
             hint="Used in the URL: /shop/your-slug"
           />
           <Input
-            label="Description"
+            label="Description" placeholder="Short description shown on the category page"
             value={form.description}
             onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
           />
